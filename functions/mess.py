@@ -19,9 +19,9 @@ def err_mess(err):
 
 
 def repost(all_spot):
-    spot_dict = spot_dict = {'kzn': ['Камаево', 'Печищи', 'Услон'],
+    spot_dict = {'kzn': ['Камаево', 'Печищи', 'Услон'],
              'inop': ['Переезд', 'Монастырь', 'Свяга М7', 'Соболевское', 'Макулово', 'Патрикеево'],
-             'lai': ['Антоновка', 'Рудник', 'Шуран']}
+             'lai': ['Антоновка', 'Рудник', 'Шуран', 'Масловка', 'Сорочьи горы']}
     for dct in all_spot:
         dat = dct['date']
         str_post = f'<b>{amdate(dat)}</b>\n\n'
@@ -100,6 +100,20 @@ def amdate(dat):
     x = map(int, dat.split('-'))
     week = week_dict[datetime.datetime.isoweekday(date(*x))]
     return f'{week} {day} {mon}'
+
+def re_amdate(dat: str):
+    mon_dct = {'01': 'Января', '02': 'феврыля', '03': 'марта', '04': 'апреля',
+           '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
+           '09': 'сентября', '10': 'октября', '11': 'ноября', '12': 'декабря'}
+    new_dat = str(dat).split(' ')
+    mon = ''
+    for num in mon_dct:
+        if mon_dct[num] == new_dat[2]:
+            mon = num
+    day = new_dat[1]
+    now = datetime.datetime.now()
+    year = str(now.year)
+    return f'{year}-{mon}-{day}'
 
 
 if __name__ == '__main__':

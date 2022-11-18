@@ -4,7 +4,7 @@ import sqlite3
 
 def pull_chat_id():
     res_lst = []
-    with sqlite3.connect("bot_db.db") as db:
+    with sqlite3.connect("../bot_db.db") as db:
         c = db.cursor()
         c.execute("SELECT * FROM usr_data")
         item = c.fetchall()
@@ -17,7 +17,7 @@ def pull_chat_id():
 
 
 def add_user(message):
-    with sqlite3.connect("bot_db.db") as db:
+    with sqlite3.connect("../bot_db.db") as db:
         c = db.cursor()
         # c.execute("""CREATE TABLE usr_data (
         #     usr_name text,

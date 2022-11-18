@@ -1,5 +1,5 @@
-from database import get_weather
-from mess import repost
+from functions.database import get_weather
+from functions.mess import repost
 import re
 
 
@@ -10,7 +10,7 @@ def go_fly(lst_d: list):
         for d in lst_d:
             lst_city = []
             for city in city_dict:
-                lst_city += [get_meteo(d[:-3], city_dict[city], city)]
+                lst_city += [get_meteo(d, city_dict[city], city)]
             if len(lst_d) == 5:
                 if len(searchflay(lst_city)['flydict']) != 0:
                     total_lst += [searchflay(lst_city)]
@@ -117,4 +117,4 @@ def searchflay(lst_city):
 
 
 if __name__ == '__main__':
-    print(repost(go_fly(['2022-11-20 Вт'])))
+    print(go_fly(['2022-11-20 Вт']))
