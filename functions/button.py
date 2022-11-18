@@ -18,3 +18,7 @@ def day_btn():
     btn6 = types.KeyboardButton(f'Все летные дни!')
     markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
     return markup
+
+
+def day_5():
+    return [str(c_d(0)), str(c_d(1)), str(c_d(2)), str(c_d(3)), str(c_d(4))]

@@ -19,17 +19,38 @@ def pull_chat_id():
 def add_user(message):
     with sqlite3.connect("../bot_db.db") as db:
         c = db.cursor()
-        # c.execute("""CREATE TABLE usr_data (
-        #     usr_name text,
-        #     usr_sname text,
-        #     chat_id integer
-        # )""")
+        c.execute("""CREATE TABLE IF NOT EXISTS usr_data (
+            usr_name text,
+            usr_sname text,
+            chat_id integer
+        )""")
+        c.execute("SELECT * FROM usr_data")
+        item = c.fetchall()
+        for el in item:
+            if el[2] == message.chat.id:
+                return False
         c.execute("INSERT INTO usr_data VALUES (?, ?, ?)",
                   (message.from_user.first_name, message.from_user.last_name, message.chat.id))
-        # c.execute("DELETE FROM usr_data WHERE rowid > 2")
         c.execute("SELECT * FROM usr_data")
-        print(c.fetchall())
+        item = c.fetchall()
+        print(item)
+        # c.execute("DELETE FROM usr_data WHERE rowid > 2")
+
         db.commit()
+
+
+def add_spot(message):
+    with sqlite3.connect("../bot_db.db") as db:
+        c = db.cursor()
+        c.execute("""CREATE TABLE IF NOT EXISTS spot_data (
+                    spot_name text,
+                    lat text,
+                    lon text,
+                    wind_degree text,
+                    w_min text,
+                    w_max text,
+                    description text
+                )""")
 
 
 def get_weather():

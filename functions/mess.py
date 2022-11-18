@@ -22,9 +22,10 @@ def repost(all_spot):
     spot_dict = {'kzn': ['Камаево', 'Печищи', 'Услон'],
              'inop': ['Переезд', 'Монастырь', 'Свяга М7', 'Соболевское', 'Макулово', 'Патрикеево'],
              'lai': ['Антоновка', 'Рудник', 'Шуран', 'Масловка', 'Сорочьи горы']}
+    str_post = ''
     for dct in all_spot:
         dat = dct['date']
-        str_post = f'<b>{amdate(dat)}</b>\n\n'
+        str_post += f'\n--- <b>{amdate(dat)}</b> ---\n\n'
         for spot in dct['flydict']:
                 str_post += f'<u><b>{spot}</b></u>\n'
                 if spot in spot_dict['kzn']:
@@ -36,7 +37,7 @@ def repost(all_spot):
         if len(dct['flydict']) == 0:
             str_post += '<u><b>К сожалению, не летно</b></u> &#128530;\n'
             str_post += meteo(dct['kzn'])
-        return str_post
+    return str_post
 
 
 def lam(x):
@@ -100,6 +101,7 @@ def amdate(dat):
     x = map(int, dat.split('-'))
     week = week_dict[datetime.datetime.isoweekday(date(*x))]
     return f'{week} {day} {mon}'
+
 
 def re_amdate(dat: str):
     mon_dct = {'01': 'Января', '02': 'феврыля', '03': 'марта', '04': 'апреля',
