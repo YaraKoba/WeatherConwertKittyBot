@@ -20,5 +20,13 @@ def day_btn():
     return markup
 
 
+def step_btn():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    btn1 = types.KeyboardButton('Да')
+    btn2 = types.KeyboardButton('Нет')
+    markup.add(btn1, btn2)
+    return markup
+
+
 def day_5():
     return [str(c_d(0)), str(c_d(1)), str(c_d(2)), str(c_d(3)), str(c_d(4))]
