@@ -1,6 +1,7 @@
 from telebot import types
 from functions.mess import amdate
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
+import time
 
 
 def c_d(numb: int):
@@ -30,3 +31,9 @@ def step_btn():
 
 def day_5():
     return [str(c_d(0)), str(c_d(1)), str(c_d(2)), str(c_d(3)), str(c_d(4))]
+
+
+def cheng_format_utc(time_utc):
+    tilda = timedelta(hours=3)
+    return str(datetime.utcfromtimestamp(time_utc) + tilda)
+

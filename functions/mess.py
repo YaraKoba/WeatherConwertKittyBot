@@ -20,20 +20,20 @@ def err_mess(err):
 
 def repost(all_spot):
     spot_dict = {'kzn': ['Камаево', 'Печищи', 'Услон'],
-             'inop': ['Переезд', 'Монастырь', 'Свяга М7', 'Соболевское', 'Макулово', 'Патрикеево'],
-             'lai': ['Антоновка', 'Рудник', 'Шуран', 'Масловка', 'Сорочьи горы']}
+                 'inop': ['Переезд', 'Монастырь', 'Свяга М7', 'Соболевское', 'Макулово', 'Патрикеево'],
+                 'lai': ['Антоновка', 'Рудник', 'Шуран', 'Масловка', 'Сорочьи горы']}
     str_post = ''
     for dct in all_spot:
         dat = dct['date']
         str_post += f'\n--- <b>{amdate(dat)}</b> ---\n\n'
         for spot in dct['flydict']:
-                str_post += f'<u><b>{spot}</b></u>\n'
-                if spot in spot_dict['kzn']:
-                    str_post += meteo(dct['kzn'], spot)
-                elif spot in spot_dict['inop']:
-                    str_post += meteo(dct['inop'], spot)
-                elif spot in spot_dict['lai']:
-                    str_post += meteo(dct['lai'], spot)
+            str_post += f'<u><b>{spot}</b></u>\n'
+            if spot in spot_dict['kzn']:
+                str_post += meteo(dct['kzn'], spot)
+            elif spot in spot_dict['inop']:
+                str_post += meteo(dct['inop'], spot)
+            elif spot in spot_dict['lai']:
+                str_post += meteo(dct['lai'], spot)
         if len(dct['flydict']) == 0:
             str_post += '<u><b>К сожалению, не летно</b></u> &#128530;\n'
             str_post += meteo(dct['kzn'])
@@ -92,8 +92,8 @@ def meteo_all(a):
 
 def amdate(dat):
     mon_dct = {'01': 'Января', '02': 'феврыля', '03': 'марта', '04': 'апреля',
-           '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
-           '09': 'сентября', '10': 'октября', '11': 'ноября', '12': 'декабря'}
+               '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
+               '09': 'сентября', '10': 'октября', '11': 'ноября', '12': 'декабря'}
     week_dict = {1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб', 7: 'Вс'}
     new_dat = str(dat).split('-')
     mon = mon_dct[new_dat[1]]
@@ -105,8 +105,8 @@ def amdate(dat):
 
 def re_amdate(dat: str):
     mon_dct = {'01': 'Января', '02': 'феврыля', '03': 'марта', '04': 'апреля',
-           '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
-           '09': 'сентября', '10': 'октября', '11': 'ноября', '12': 'декабря'}
+               '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
+               '09': 'сентября', '10': 'октября', '11': 'ноября', '12': 'декабря'}
     new_dat = str(dat).split(' ')
     mon = ''
     for num in mon_dct:
@@ -140,14 +140,15 @@ def mess_get_spot(arg):
            f'<b>Описание:</b>  {arg[8]}\n\n'
 
 
-def mess_get_all_spot(arg):
+def mess_get_all_spot(spots):
     res = ''
     k = 0
-    for spot in arg:
+    spot_sort = sorted([all_inf_spot[0] for all_inf_spot in spots])
+    for spot in spot_sort:
         k += 1
-        res += f'<b>{k}.</b> {spot[0]}\n'
+        res += f'<b>{k}.</b> {spot}\n'
     return res
 
 
 if __name__ == '__main__':
-    step_2('Переезд/св"55.8176" ers : 48.4749 :  sdg 345 : 15 : 4 : 10 : https://www.windy.com/55.848/48.510?55.874,48.618,11,m:fefahv0 : хорошая горка')
+    pass

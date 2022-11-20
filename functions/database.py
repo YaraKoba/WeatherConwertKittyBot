@@ -11,7 +11,8 @@ def pull_chat_id():
         for el in item:
             try:
                 res_lst += [el[2]]
-            except:
+            except Exception as err:
+                print(err)
                 c.execute("DELETE FROM usr_data WHERE chat_id=?", (el[2],))
     return res_lst
 
@@ -30,7 +31,7 @@ def add_user(message):
         for el in item:
             if el[2] == message.chat.id:
                 return False
-        c.execute("INSERT INTO usr_data VALUES (?, ?, ?, 'Yes')",
+        c.execute("INSERT INTO usr_data VALUES (?, ?, ?)",
                   (message.from_user.first_name, message.from_user.last_name, message.chat.id))
         c.execute("SELECT * FROM usr_data")
         item = c.fetchall()
@@ -85,13 +86,21 @@ def dell_spot(spot_name):
         return f'Горка "{spot_name}" не найдена'
 
 
-def get_weather():
-    with open('weather.json', 'r') as file:
-        j_meteo = json.load(file)
+def get_spot_lat_lon(spot_name):
+    with sqlite3.connect("bot_db.db") as db:
+        c = db.cursor()
+        if spot_name:
+            c.execute(f"SELECT lat, lon FROM spot_data WHERE spot_name = '%s'" % (spot_name, ))
+        item = c.fetchall()
+        db.commit()
+        return item
+
+
+def get_weather(name_file):
+    with open(f'{name_file}', 'r') as fi:
+        j_meteo = json.load(fi)
     return j_meteo
 
 
 if __name__ == '__main__':
-    # add_spot(('Услон', '55.8176', '48.4749', '345', '15', '4', '10', 'https://www.windy.com/55.848/48.510?55.874,48.618,11,m:fefahv0', 'хорошая горка'))
-    print(get_spot('Услон'))
-
+    print(get_spot_lat_lon('Услон'))
