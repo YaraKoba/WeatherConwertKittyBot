@@ -1,5 +1,7 @@
 import datetime
 from datetime import date
+# from functions.get_meteo import oneday_meteo
+from functions.database import get_weather
 import re
 
 
@@ -18,26 +20,34 @@ def err_mess(err):
            f"Date:  {datetime.date.today()}"
 
 
-def repost(all_spot):
-    spot_dict = {'kzn': ['Камаево', 'Печищи', 'Услон'],
-                 'inop': ['Переезд', 'Монастырь', 'Свяга М7', 'Соболевское', 'Макулово', 'Патрикеево'],
-                 'lai': ['Антоновка', 'Рудник', 'Шуран', 'Масловка', 'Сорочьи горы']}
+def repost(all_spot, message=None):
+    # spot_dict = {'kzn': ['Камаево', 'Печищи', 'Услон'],
+    #              'inop': ['Переезд', 'Монастырь', 'Свяга М7', 'Соболевское', 'Макулово', 'Патрикеево'],
+    #              'lai': ['Антоновка', 'Рудник', 'Шуран', 'Масловка', 'Сорочьи горы']}
     str_post = ''
+    data = ''
+    if len(all_spot) == 0:
+        str_post += f'\n--- <b>{message}</b> ---\n\n'
+        str_post += '<u><b>К сожалению, не летно</b></u> &#128530;\n'
+        # str_post += meteo(oneday_meteo(message, get_weather('weather.json'), 'Казань'))
+        return str_post
     for dct in all_spot:
-        dat = dct['date']
-        str_post += f'\n--- <b>{amdate(dat)}</b> ---\n\n'
-        for spot in dct['flydict']:
-            str_post += f'<u><b>{spot}</b></u>\n'
-            if spot in spot_dict['kzn']:
-                str_post += meteo(dct['kzn'], spot)
-            elif spot in spot_dict['inop']:
-                str_post += meteo(dct['inop'], spot)
-            elif spot in spot_dict['lai']:
-                str_post += meteo(dct['lai'], spot)
-        if len(dct['flydict']) == 0:
-            str_post += '<u><b>К сожалению, не летно</b></u> &#128530;\n'
-            str_post += meteo(dct['kzn'])
+        if data != dct['date']:
+            data = dct['date']
+            str_post += f'\n--- <b>{amdate(data)}</b> ---\n\n'
+        str_post += f'<u><b>{dct["spot"]}</b></u>\nСовпадения с условиями - {dct["point"]}%\n'
+        str_post += meteo(dct['meteo']['time'], dct["spot"])
     return str_post
+    #         if spot in spot_dict['kzn']:
+    #             str_post += meteo(dct['kzn'], spot)
+    #         elif spot in spot_dict['inop']:
+    #             str_post += meteo(dct['inop'], spot)
+    #         elif spot in spot_dict['lai']:
+    #             str_post += meteo(dct['lai'], spot)
+    #     if len(dct['flydict']) == 0:
+    #         str_post += '<u><b>К сожалению, не летно</b></u> &#128530;\n'
+    #         str_post += meteo(dct['kzn'])
+    # return str_post
 
 
 def lam(x):
@@ -47,7 +57,7 @@ def lam(x):
 def meteo(a, spot='Макулово'):
     prognoz = {'Переезд': "https://www.windy.com/55.848/48.510?55.874,48.618,11,m:fefahv0",
                'Монастырь': "https://www.windy.com/55.772/48.660?55.819,48.486,11,m:fd6ahwg",
-               'Свяга М7': "https://www.windy.com/55.713/48.600?55.709,48.599,15,m:fd0ahv8",
+               'Свияга_М7': "https://www.windy.com/55.713/48.600?55.709,48.599,15,m:fd0ahv8",
                'Соболевское': "https://www.windy.com/55.616/48.462?55.521,48.720,10,m:fdQahvV",
                'Макулово': "https://www.windy.com/55.593/48.716?55.617,48.710,12,m:fdOahwm",
                'Патрикеево': "https://www.windy.com/55.467/48.579?55.423,48.579,11,m:fdBahv6",
@@ -58,7 +68,7 @@ def meteo(a, spot='Макулово'):
                'Печищи': "https://www.windy.com/55.776/48.950?55.763,48.983,14,m:fd6ahwJ",
                'Услон': "https://www.windy.com/55.776/48.950?55.763,48.983,14,m:fd6ahwJ",
                'Масловка': "https://www.windy.com/55.439/50.009?55.387,49.922,12,m:fdyahyv",
-               'Сорочьи горы': "https://www.windy.com/55.280/49.191?55.369,49.835,13,m:fdrahyc"}
+               'Сорочьи_горы': "https://www.windy.com/55.280/49.191?55.369,49.835,13,m:fdrahyc"}
     meteo_dict = {}
     for i in a[0]:
         meteo_dict[i] = []

@@ -1,7 +1,7 @@
 from envparse import Env
 from functions import database, mess, button
 from functions.row_request import RowReq, MyBot
-from functions.get_meteo import go_fly
+from functions.get_meteo import go_fly, analytics_main
 
 
 def main():
@@ -67,14 +67,14 @@ def main():
     @bot.message_handler(regexp=r'Все летные дни!')
     def all_call(message):
         date_all = button.day_5()
-        res = go_fly(date_all)
+        res = analytics_main(date_all)
         bot.send_message(message.chat.id, mess.repost(res), parse_mode='html')
 
     @bot.message_handler(regexp=r"[А-Я][а-я]\s\d{2}\s[а-я]+\b")
-    def get_usre_text(message):
+    def get_user_text(message):
         date_f = [mess.re_amdate(message.text)]
-        res = go_fly(date_f)
-        bot.send_message(message.chat.id, mess.repost(res), parse_mode='html')
+        res = analytics_main(date_f)
+        bot.send_message(message.chat.id, mess.repost(res, message.text), parse_mode='html')
 
     # @bot.message_handler(commands=['go', 'stop'])
     # def remeber(message):
@@ -86,13 +86,13 @@ def main():
     #         exit_even.set()
 
     while True:
-        try:
+        # try:
             bot.polling()
-        except Exception as err:
-            params = {
-                "chat_id": f'{ADMIN_ID}',
-                "text": mess.err_mess(err)}
-            bot.row_req.post(method="sendmessage", params=params)
+        # except Exception as err:
+        #     params = {
+        #         "chat_id": f'{ADMIN_ID}',
+        #         "text": mess.err_mess(err)}
+        #     bot.row_req.post(method="sendmessage", params=params)
 
 
 if __name__ == '__main__':

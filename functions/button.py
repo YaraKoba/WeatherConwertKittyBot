@@ -1,7 +1,6 @@
 from telebot import types
 from functions.mess import amdate
 from datetime import date, timedelta, datetime
-import time
 
 
 def c_d(numb: int):

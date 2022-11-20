@@ -1,5 +1,5 @@
 from functions.database import get_weather, get_spot
-from button import cheng_format_utc as uts
+from functions.button import cheng_format_utc as uts
 import re
 
 
@@ -126,10 +126,10 @@ def add_point_to_spot(meteo_one_days):
     sun_up = uts(meteo_one_days['sun_up'])[11:-3]
     sun_down = uts(meteo_one_days['sun_down'])[11:-3]
     one_day_points = [get_point(tree_h, spot) for tree_h in meteo_one_days['time']]
-    return analytics_data_point(one_day_points, spot, meteo_one_days['date'], sun_up, sun_down)
+    return analytics_data_point(one_day_points, spot, meteo_one_days['date'], sun_up, sun_down, meteo_one_days)
 
 
-def analytics_data_point(o_d_p, spot, date, sun_up, sun_down):
+def analytics_data_point(o_d_p, spot, date, sun_up, sun_down, meteo_one_days):
     int_up = int(sun_up[:-3])
     int_down = int(sun_down[:-3])
     sort_hours = [t_h for t_h in o_d_p if t_h['wdg'] > 0 and t_h['w_s'] > 0
@@ -140,7 +140,7 @@ def analytics_data_point(o_d_p, spot, date, sun_up, sun_down):
     except ZeroDivisionError:
         point_ws_wdg, point_fly_time = 0, 0
     result = {'spot': spot, 'date': date, 'sun_up': sun_up, 'sun_down': sun_down,
-              'point': point_ws_wdg + point_fly_time}
+              'point': point_ws_wdg + point_fly_time, 'meteo': meteo_one_days}
     return result
 
 
@@ -191,8 +191,9 @@ def mid_wdg_h(lef, w, r):
 
 
 if __name__ == '__main__':
-    pass
-    # for i in analytics_main(['2022-11-20', '2022-11-22', '2022-11-23', '2022-11-24', '2022-11-25']):
-    #     print(i)
+    # pass
+    for i in analytics_main(['2022-11-20', '2022-11-22', '2022-11-23', '2022-11-24', '2022-11-25']):
+        print(i)
+    # print(analytics_main(['2022-11-20']))
     # spot_dict = get_weather('spot_weather.json')
     # print(add_point_to_spot(oneday_meteo('2022-11-22', spot_dict['Монастырь'], 'Монастырь')))
