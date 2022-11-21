@@ -1,7 +1,7 @@
 from envparse import Env
-from functions import database, mess, button
+from functions import mess, button, database
 from functions.row_request import RowReq, MyBot
-from functions.get_meteo import go_fly, analytics_main
+from functions.get_meteo import analytics_main
 
 
 def main():

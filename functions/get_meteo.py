@@ -22,6 +22,7 @@ def go_fly(lst_d: list):
 
 
 def oneday_meteo(day, j_info, city):
+    # print(city, j_info)
     reg = r'(\d{4})(.)(\d{2})(.)(\d{2})(\s.{5})(.+)'
     sun_up = j_info['city']['sunrise']
     sun_down = j_info['city']['sunset']
@@ -117,7 +118,8 @@ def searchflay(lst_city):
 def analytics_main(lst_day: list):  # add_point_to_spot(oneday_meteo('2022-11-22', spot_dict['Масловка'], 'Масловка'))
     spot_dict = get_weather('spot_weather.json')
     meteo_all_days = [oneday_meteo(one_day, spot_dict[spot], spot) for one_day in lst_day for spot in spot_dict]
-    total_res = [add_point_to_spot(one_day) for one_day in meteo_all_days if add_point_to_spot(one_day)['point'] > 0]
+    total_res = ([add_point_to_spot(one_day) for one_day in meteo_all_days
+                  if add_point_to_spot(one_day)['time_point'] + add_point_to_spot(one_day)['wind_point'] > 0])
     return total_res
 
 
@@ -132,15 +134,18 @@ def add_point_to_spot(meteo_one_days):
 def analytics_data_point(o_d_p, spot, date, sun_up, sun_down, meteo_one_days):
     int_up = int(sun_up[:-3])
     int_down = int(sun_down[:-3])
-    sort_hours = [t_h for t_h in o_d_p if t_h['wdg'] > 0 and t_h['w_s'] > 0
-                  and int_up - 1 <= int(t_h['time'][:-3]) <= int_down + 1]
+    sort_hours = [t_h for t_h in o_d_p if int_up - 1 <= int(t_h['time'][:-3]) <= int_down + 1]
     try:
-        point_fly_time = int(len(sort_hours) / 4 * 50)
-        point_ws_wdg = int(sum([(point['w_s'] + point['wdg']) for point in sort_hours]) / len(sort_hours) * 50)
+        point_fly_time = int(len([t_h for t_h in sort_hours if t_h['wdg'] > 0
+                                  and t_h['w_s'] > 0]) / len(sort_hours) * 100)
+        if point_fly_time != 0:
+            point_ws_wdg = int(sum([(point['w_s'] + point['wdg']) for point in sort_hours]) / len(sort_hours) * 100)
+        else:
+            point_ws_wdg = 0
     except ZeroDivisionError:
         point_ws_wdg, point_fly_time = 0, 0
-    result = {'spot': spot, 'date': date, 'sun_up': sun_up, 'sun_down': sun_down,
-              'point': point_ws_wdg + point_fly_time, 'meteo': meteo_one_days}
+    result = {'time_point': point_fly_time, 'wind_point': point_ws_wdg,
+              'fly_time': sort_hours, 'meteo': meteo_one_days}
     return result
 
 
@@ -154,10 +159,10 @@ def get_point(m_t, spot):
     wdg_r = int(get_spot(spot)[0][4])
     w_min = int(get_spot(spot)[0][5])
     w_max = int(get_spot(spot)[0][6])
-    point_dict = {'time': m_t['time'], 'wdg': 0, 'w_s': 0}
+    point_dict = {'time': m_t['time'], 'wdg': 0, 'w_s': 0, 'win_dg': wdg, 'win_l': wdg_l, 'win_r': wdg_r}
     if pop < 0.6 and rain < 0.6 and w_g < 10 and (w_g - w_s) < 7:
         if wdg_l < wdg_r:
-            if wdg_l + middle(wdg_l, wdg_r) - 5 <= wdg <= wdg_r + middle(wdg_l, wdg_r) + 5:
+            if wdg_l + middle(wdg_l, wdg_r) - 5 <= wdg <= wdg_r - middle(wdg_l, wdg_r) + 5:
                 point_dict['wdg'] += 0.25
             if wdg_l <= wdg <= wdg_r:
                 point_dict['wdg'] += 0.25
@@ -192,7 +197,8 @@ def mid_wdg_h(lef, w, r):
 
 if __name__ == '__main__':
     # pass
-    for i in analytics_main(['2022-11-20', '2022-11-22', '2022-11-23', '2022-11-24', '2022-11-25']):
+    for i in analytics_main(['2022-11-22', '2022-11-23', '2022-11-24', '2022-11-25']):
+        # print(f't_p - {i["time_point"]}, w_p - {i["wind_point"]} ' + i['meteo']['city'], i['fly_time'])
         print(i)
     # print(analytics_main(['2022-11-20']))
     # spot_dict = get_weather('spot_weather.json')
