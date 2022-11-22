@@ -3,8 +3,7 @@ from envparse import Env
 import json
 import os
 from database import get_spot_lat_lon as l_l, get_spot
-from functions.button import day_5
-from functions.get_meteo import go_fly
+
 
 
 def getreq(lat, lon):
@@ -40,9 +39,6 @@ def add_main(spot_dict: dict, name_file):
 
 
 def create_new_spot_dict():
-    lst_days = day_5()
-    go_fly(lst_days)
-    # fly_spot = [spot for dct in go_fly(lst_days) for spot in dct['flydict']]
     fly_spot = [spot[0] for spot in get_spot()]
     new_spot_dict = {spot: l_l(spot)[0] for spot in fly_spot}
     return new_spot_dict

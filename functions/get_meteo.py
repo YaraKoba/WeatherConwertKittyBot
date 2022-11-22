@@ -3,24 +3,6 @@ from functions.button import cheng_format_utc as uts
 import re
 
 
-def go_fly(lst_d: list):
-    try:
-        city_dict = get_weather('weather.json')
-        total_lst = []
-        for d in lst_d:
-            lst_city = []
-            for city in city_dict:
-                lst_city += [oneday_meteo(d, city_dict[city], city)]
-            if len(lst_d) == 5:
-                if len(searchflay(lst_city)['flydict']) != 0:
-                    total_lst += [searchflay(lst_city)]
-            else:
-                total_lst += [searchflay(lst_city)]
-        return total_lst
-    except IndexError:
-        print('Прогноз пока не обновился')
-
-
 def oneday_meteo(day, j_info, city):
     # print(city, j_info)
     reg = r'(\d{4})(.)(\d{2})(.)(\d{2})(\s.{5})(.+)'
@@ -47,74 +29,6 @@ def oneday_meteo(day, j_info, city):
     return oneday_dict
 
 
-def coolday(md, city):
-    pop = md['pop']
-    rain = md['rain']
-    wg = md['wind_gust']
-    ws = md['wind_speed']
-    wdg = md['wind_degree']
-    lst = []
-
-    # print(f'time = {time_1}')
-    # print(f'pop = {pop}')
-    # print(f'rain = {rain}')
-    # print(f'wg = {wg}')
-    # print(f'ws = {ws}')
-    # print(f'wdg = {wdg}')
-
-    if pop > 0.6 or rain > 0.6 or wg > 9 or (wg - ws) > 7:
-        return False
-    if (345 <= wdg <= 360 or 0 <= wdg <= 15) and wg > 5 and city == 'Инополис':
-        lst += ['Переезд']
-    if (270 <= wdg <= 330) and wg > 5 and city == 'Инополис':
-        lst += ['Монастырь']
-    if (270 <= wdg <= 325) and wg > 5 and city == 'Инополис':
-        lst += ['Свияга_М7']
-    if (315 <= wdg <= 360 or 0 <= wdg <= 45 or 135 <= wdg <= 225) and city == 'Инополис':
-        lst += ['Соболевское']
-    if (250 <= wdg <= 275) and wg > 5 and city == 'Инополис':
-        lst += ['Макулово']
-    if (230 <= wdg <= 255) and wg > 5 and city == 'Инополис':
-        lst += ['Патрикеево']
-    if (0 <= wdg <= 45) and wg > 5 and city == 'Казань':
-        lst += ['Услон']
-    if (0 <= wdg <= 25 or 345 <= wdg <= 0) and wg > 3 and city == 'Казань':
-        lst += ['Печищи']
-    if (40 <= wdg <= 90 or 120 <= wdg <= 150) and wg > 5 and city == 'Казань':
-        lst += ['Камаево_юв']
-        lst += ['Камаево_св']
-    if (75 <= wdg <= 95) and wg > 5 and city == 'Лаишево':
-        lst += ['Антоновка']
-    if (65 <= wdg <= 90) and wg > 3 and city == 'Лаишево':
-        lst += ['Рудник']
-    if (200 <= wdg <= 240) and wg > 5 and city == 'Лаишево':
-        lst += ['Шуран']
-    if (130 <= wdg <= 170) and wg > 5 and city == 'Лаишево':
-        lst += ['Сорочьи_горы']
-    if (80 <= wdg <= 120) and wg > 5 and city == 'Лаишево':
-        lst += ['Масловка']
-    return lst
-
-
-def searchflay(lst_city):
-    flydict = {'Переезд': 0, 'Монастырь': 0, 'Патрикеево': 0,
-               'Свияга_М7': 0, 'Услон': 0, 'Соболевское': 0, 'Макулово': 0,
-               'Антоновка': 0, 'Рудник': 0, 'Шуран': 0, 'Камаево_юв': 0, 'Камаево_св': 0, 'Сорочьи_горы': 0, 'Масловка': 0}
-    fly_res = {'date': '', 'flydict': [], 'kzn': lst_city[0]['time'],
-               'inop': lst_city[1]['time'], 'lai': lst_city[2]['time']}
-    fly_res['date'] = lst_city[0]['date']
-    for pl in lst_city:
-        for tm in pl['time']:
-            x = coolday(tm, pl['city'])
-            if x:
-                for i in x:
-                    flydict[i] += 1
-    for n in flydict:
-        if flydict[n] >= 3:
-            fly_res['flydict'] += [n]
-    return fly_res
-
-
 def analytics_main(lst_day: list):  # add_point_to_spot(oneday_meteo('2022-11-22', spot_dict['Масловка'], 'Масловка'))
     spot_dict = get_weather('spot_weather.json')
     meteo_all_days = [oneday_meteo(one_day, spot_dict[spot], spot) for one_day in lst_day for spot in spot_dict]
@@ -128,10 +42,10 @@ def add_point_to_spot(meteo_one_days):
     sun_up = uts(meteo_one_days['sun_up'])[11:-3]
     sun_down = uts(meteo_one_days['sun_down'])[11:-3]
     one_day_points = [get_point(tree_h, spot) for tree_h in meteo_one_days['time']]
-    return analytics_data_point(one_day_points, spot, meteo_one_days['date'], sun_up, sun_down, meteo_one_days)
+    return analytics_data_point(one_day_points, sun_up, sun_down, meteo_one_days)
 
 
-def analytics_data_point(o_d_p, spot, date, sun_up, sun_down, meteo_one_days):
+def analytics_data_point(o_d_p, sun_up, sun_down, meteo_one_days):
     int_up = int(sun_up[:-3])
     int_down = int(sun_down[:-3])
     sort_hours = [t_h for t_h in o_d_p if int_up - 1 <= int(t_h['time'][:-3]) <= int_down + 1]

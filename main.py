@@ -14,12 +14,14 @@ def main():
 
     @bot.message_handler(commands=['start'])
     def start(message):
+        print(f'{message.from_user.first_name} - command: {message.text}')
         mes = mess.header_mess(message)
         bot.send_message(message.chat.id, mes, parse_mode='html')
         database.add_user(message)
 
     @bot.message_handler(commands=['dell_spot'])
     def dell_spot_step_1(message):
+        print(f'{message.from_user.first_name} - command: {message.text}')
         if str(message.chat.id) in ADMIN_PASSWORD:
             message_for_user = "Введите название горки, которую собираетесь удвлить"
             mes = bot.send_message(message.chat.id, message_for_user, parse_mode='html')
@@ -33,6 +35,7 @@ def main():
 
     @bot.message_handler(commands=['get_spot'])
     def get_spot(message):
+        print(f'{message.from_user.first_name} - command: {message.text}')
         mes = bot.send_message(message.chat.id, "Введите 'Все' или 'Название горки'", parse_mode='html')
         bot.register_next_step_handler(mes, show_spot)
 
@@ -45,6 +48,7 @@ def main():
 
     @bot.message_handler(commands=['add_spot'])
     def create_spot(message):
+        print(f'{message.from_user.first_name} - command: {message.text}')
         if str(message.chat.id) in ADMIN_PASSWORD:
             mes = bot.send_message(message.chat.id, mess.step_1(), parse_mode='html')
             bot.register_next_step_handler(mes, add_spot_step)
@@ -61,38 +65,32 @@ def main():
 
     @bot.message_handler(commands=['days'])
     def show_days(message):
+        print(f'{message.from_user.first_name} - command: {message.text}')
         markup = button.day_btn()
         bot.send_message(message.chat.id, "Даты обновлены", parse_mode='html', reply_markup=markup)
 
     @bot.message_handler(regexp=r'Все летные дни!')
     def all_call(message):
+        print(f'{message.from_user.first_name} - command: {message.text}')
         date_all = button.day_5()
         res = analytics_main(date_all)
         bot.send_message(message.chat.id, mess.repost(res), parse_mode='html')
 
     @bot.message_handler(regexp=r"[А-Я][а-я]\s\d{2}\s[а-я]+\b")
     def get_user_text(message):
+        print(f'{message.from_user.first_name} - command: {message.text}')
         date_f = [mess.re_amdate(message.text)]
         res = analytics_main(date_f)
         bot.send_message(message.chat.id, mess.repost(res, message.text), parse_mode='html')
 
-    # @bot.message_handler(commands=['go', 'stop'])
-    # def remeber(message):
-    #     if message.text == '/go':
-    #         exit_even.clear()
-    #         bot.send_message(message.chat.id, 'Уведомления запущены')
-    #     else:
-    #         bot.send_message(message.chat.id, 'Уведомления отключены')
-    #         exit_even.set()
-
     while True:
-        # try:
+        try:
             bot.polling()
-        # except Exception as err:
-        #     params = {
-        #         "chat_id": f'{ADMIN_ID}',
-        #         "text": mess.err_mess(err)}
-        #     bot.row_req.post(method="sendmessage", params=params)
+        except Exception as err:
+            params = {
+                "chat_id": f'{ADMIN_ID}',
+                "text": mess.err_mess(err)}
+            bot.row_req.post(method="sendmessage", params=params)
 
 
 if __name__ == '__main__':

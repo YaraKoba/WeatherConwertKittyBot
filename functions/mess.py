@@ -73,6 +73,7 @@ def meteo(a):
     degree = [(i["win_l"], i["win_r"]) for i in a["fly_time"]]
     fly_hour = [tm['time'][:-2] for tm in a["fly_time"]]
     only_fly_hour = [tm['time'] for tm in a["fly_time"] if tm['wdg'] > 0 and tm['w_s'] > 0]
+    hour_point = [str(int((tm['w_s'] + tm['wdg']) * 100)) for tm in a["fly_time"]]
     prognoz = get_spot(a['meteo']['city'])[0][7]
     meteo_dict = {}
     for i in a['meteo']['time'][0]:
@@ -83,15 +84,17 @@ def meteo(a):
             for z in j:
                 meteo_dict[z] += [j[z]]
     rain = map(lambda x: re.sub(r"(\d\.\d{,2})(.+)", r"\1", str(x)), meteo_dict["rain"])
-    return (f'Нужное направление ветра:  <b>{degree[0][0]}°-{degree[0][1]}°</b>\n'
-            f'Количество летных часов:  <b>{a["time_point"]}%</b> ({" ".join(only_fly_hour)} )\n'
-            f'Оцнка направлеия и силы ветра:  <b>{a["wind_point"]}%</b>\n'
-            f'&#128337;  <u>|   {"     |   ".join(fly_hour)}     | ч</u>\n'
-            f'&#127788;  |   {"   |   ".join(list(map(lam_wind, meteo_dict["wind_speed"])))}   | м/с\n'
-            f'&#127786;  |   {"   |   ".join(list(map(lam_wind, meteo_dict["wind_gust"])))}   | м/с\n'
-            f'&#129517;  |   {"   |  ".join(list(map(lam_degree, meteo_dict["wind_degree"])))}   |\n'
-            f'&#127777;  |   {"   |   ".join(list(map(lam_temp, meteo_dict["temp"])))}   | ℃\n'
-            f'&#127782;  |       {"      |      ".join(list(rain))}      | мм/3ч\n'
+    return (f'Направление ветра:  <b>{degree[0][0]}°-{degree[0][1]}°</b>\n'
+            f'<u>Общая оценка: <b>{int((a["time_point"] + a["wind_point"]) * 0.5)}%</b></u>\n'
+            f'Оценка ветра:  <b>{a["wind_point"]}%</b>\n'
+            f'Летные часы:  <b>{a["time_point"]}%</b> \n({" ".join(only_fly_hour)} )\n'
+            f'&#128337;  <u>|  {"  |  ".join(fly_hour)}  | ч</u>\n'
+            f'&#127788;  | {" | ".join(list(map(lam_wind, meteo_dict["wind_speed"])))} | м/с\n'
+            f'&#127786;  | {" | ".join(list(map(lam_wind, meteo_dict["wind_gust"])))} | м/с\n'
+            f'&#129517;  | {" |".join(list(map(lam_degree, meteo_dict["wind_degree"])))} |\n'
+            f'&#127777;  | {" | ".join(list(map(lam_temp, meteo_dict["temp"])))} | ℃\n'
+            f'&#127782;  |    {"    |    ".join(list(rain))}    | мм/3ч\n'
+            f'&#129666;  | {"%  | ".join(hour_point)}%  |\n'
             f'<a href="{prognoz}">Подробнее...</a>\n\n')
 
 
