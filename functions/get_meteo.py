@@ -34,6 +34,9 @@ def analytics_main(lst_day: list):  # add_point_to_spot(oneday_meteo('2022-11-22
     meteo_all_days = [oneday_meteo(one_day, spot_dict[spot], spot) for one_day in lst_day for spot in spot_dict]
     total_res = ([add_point_to_spot(one_day) for one_day in meteo_all_days
                   if add_point_to_spot(one_day)['time_point'] + add_point_to_spot(one_day)['wind_point'] > 0])
+    print(total_res)
+    total_res = sorted(total_res, key=lambda j: j['time_point'] + j['wind_point'], reverse=True)
+    total_res = sorted(total_res, key=lambda j: j['meteo']['date'], reverse=False)
     return total_res
 
 
