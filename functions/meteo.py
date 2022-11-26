@@ -5,7 +5,6 @@ import os
 from database import get_spot_lat_lon as l_l, get_spot
 
 
-
 def getreq(lat, lon):
     env = Env()
     APIKEY = env.str("APIKEY")

@@ -1,7 +1,5 @@
-import datetime
-from datetime import date
 from functions.database import get_spot
-# from functions.get_meteo import oneday_meteo
+from functions.suport import *
 import re
 
 
@@ -15,17 +13,19 @@ def header_mess(message):
 
 
 def err_mess(err):
+    now = datetime.now()
     return f"Type:  {str(type(err))[7:-1]}\n"\
            f"Error:  {err}\n"\
-           f"Date:  {datetime.date.today()}"
+           f"Date:  {now.strftime('%d-%m-%Y %H:%M')}"
 
 
 def repost(all_spot, message=None):
     str_post = ''
     data = ''
-    if len(all_spot) == 0:
+    if type(all_spot) == dict:
         str_post += f'\n--- <b>{message}</b> ---\n\n'
-        str_post += '<u><b>К сожалению, не летно</b></u> &#128530;\n'
+        str_post += '<u><b>К сожалению, не летно</b></u> &#128530;\n'\
+                    f'{meteo_all(all_spot["time"])}'
         return str_post
     for dct in all_spot:
         if data != dct['meteo']['date']:
@@ -36,37 +36,7 @@ def repost(all_spot, message=None):
     return str_post
 
 
-def lam_wind(x):
-    res = str(round(x, 1))
-    if len(res) == 1:
-        res = f' {res}.0  '
-    elif len(res) == 3:
-        res = f' {res}  '
-    return res
 
-
-def lam_degree(x):
-    res = str(x)
-    if len(res) == 1:
-        res = f'  {x}°  '
-    elif len(res) == 2:
-        res = f'  {x}° '
-    elif len(res) == 3:
-        res = f' {x}°'
-    return res
-
-
-def lam_temp(x):
-    res = int(round(x))
-    if 0 < res < 10:
-        res = f'   {res}   '
-    elif res >= 10:
-        res = f'  {res}  '
-    elif 0 > x >= -9:
-        res = f'  {res}   '
-    elif res <= -10:
-        res = f'  {res} '
-    return res
 
 
 def meteo(a):
@@ -99,45 +69,14 @@ def meteo(a):
 
 
 def meteo_all(a):
-    res_mess = ''
-    for i in a:
-        temp = int(i["temp"]) if float(i["temp"]) >= 10 or i["temp"] < 0 else ' ' + str(int(i["temp"])) + ' '
-        ws = int(i["wind_speed"]) if float(i["wind_speed"]) >= 10 else ' ' + str(int(i["wind_speed"])) + ' '
-        wg = int(i["wind_gust"]) if float(i["wind_gust"]) >= 10 else ' ' + str(int(i["wind_gust"])) + ' '
-        wdg = i["wind_degree"] if i["wind_degree"] > 100 else ' ' + str(int(i["wind_degree"])) + ' '
-        if int(wdg) < 10:
-            wdg = ' ' + str(wdg) + ' '
-        res_mess += (f'{str(i["time"])[:-2]} | {ws} | {wg} | {wdg} | '
-                     f'{temp} | {str(float(i["pop"]))} | {i["rain"]}\n')
-    return res_mess
-
-
-def amdate(dat):
-    mon_dct = {'01': 'Января', '02': 'феврыля', '03': 'марта', '04': 'апреля',
-               '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
-               '09': 'сентября', '10': 'октября', '11': 'ноября', '12': 'декабря'}
-    week_dict = {1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб', 7: 'Вс'}
-    new_dat = str(dat).split('-')
-    mon = mon_dct[new_dat[1]]
-    day = new_dat[2]
-    x = map(int, dat.split('-'))
-    week = week_dict[datetime.datetime.isoweekday(date(*x))]
-    return f'{week} {day} {mon}'
-
-
-def re_amdate(dat: str):
-    mon_dct = {'01': 'Января', '02': 'феврыля', '03': 'марта', '04': 'апреля',
-               '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
-               '09': 'сентября', '10': 'октября', '11': 'ноября', '12': 'декабря'}
-    new_dat = str(dat).split(' ')
-    mon = ''
-    for num in mon_dct:
-        if mon_dct[num] == new_dat[2]:
-            mon = num
-    day = new_dat[1]
-    now = datetime.datetime.now()
-    year = str(now.year)
-    return f'{year}-{mon}-{day}'
+    m_d = {key: [str(tm[key]) for tm in a if 5 < int(tm['time'][:-3]) < 22] for key in a[0]}
+    lst_time = [tm[1:-3] for tm in m_d['time']]
+    return (f'&#128337;  <u>|{"|".join(list(map(lambda x: f"  {x}  ", lst_time)))}ч</u>\n'
+            f'&#127788;  |{"|".join(list(map(lam_wind_all, m_d["wind_speed"])))}м/с\n'
+            f'&#127786;  |{"|".join(list(map(lam_wind_all, m_d["wind_gust"])))}м/с\n'
+            f'&#129517;  | { " | ".join(list(map(amdegree, m_d["wind_degree"])))}\n'
+            f'&#127777;  |{"|".join(list(map(lam_temp, m_d["temp"])))} ℃\n'
+            f'&#127782;  {ampop(a)}\n')
 
 
 def step_1():
