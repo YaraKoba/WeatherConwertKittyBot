@@ -1,4 +1,5 @@
 from datetime import date, datetime
+import re
 
 
 def lam_wind(x):
@@ -113,3 +114,12 @@ def re_amdate(dat: str):
     now = datetime.now()
     year = str(now.year)
     return f'{year}-{mon}-{day}'
+
+
+def re_amcommand_change(message):
+    print(message)
+    lst_command = re.findall(r'(\w+?)\s([А-Яа-я.]+?)\s(.+)', message)
+    command_dict = {'слева': "wind_degree_l", 'справа': "wind_degree_r", 'с.ш': "lat",
+                    'в.д': "lon", 'макс.ветер': "w_max", 'мин.ветер': "w_min",
+                    'ссылка': "url", 'описание': "description"}
+    return [lst_command[0][0], command_dict[lst_command[0][1]], lst_command[0][2]]

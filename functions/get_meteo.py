@@ -1,4 +1,5 @@
-from functions.database import get_weather, get_spot
+from functions.database import get_weather
+from functions.database import DataBase
 from functions.button import cheng_format_utc as uts
 import re
 
@@ -66,15 +67,16 @@ def analytics_data_point(o_d_p, sun_up, sun_down, meteo_one_days):
 
 
 def get_point(m_t, spot):
+    db = DataBase()
     pop = m_t['pop']
     rain = m_t['rain']
     w_g = m_t['wind_gust']
     w_s = m_t['wind_speed']
     wdg = m_t['wind_degree']
-    wdg_l = int(get_spot(spot)[0][3])
-    wdg_r = int(get_spot(spot)[0][4])
-    w_min = int(get_spot(spot)[0][5])
-    w_max = int(get_spot(spot)[0][6])
+    wdg_l = int(db.get_spot(spot)[0][3])
+    wdg_r = int(db.get_spot(spot)[0][4])
+    w_min = int(db.get_spot(spot)[0][5])
+    w_max = int(db.get_spot(spot)[0][6])
     point_dict = {'time': m_t['time'], 'wdg': 0, 'w_s': 0, 'win_dg': wdg, 'win_l': wdg_l, 'win_r': wdg_r}
     if pop < 0.6 and rain < 0.6 and w_g < 10 and (w_g - w_s) < 7:
         if wdg_l < wdg_r:

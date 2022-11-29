@@ -1,4 +1,4 @@
-from functions.database import get_spot
+from functions.database import DataBase
 from functions.suport import *
 import re
 
@@ -11,6 +11,19 @@ def header_mess(message):
             f'чтобы заново <b>включить</b> уведомления, введите /go\n'
             f'<b>Выберете дату, чтобы узнать где полетать</b> &#128526;')
 
+
+def cheng_param_mess():
+    return ('1. Введите название горки.\n'
+            '2. Введите один пораметр, который хотите изменить.\n'
+            '2.1 Изменяемые пораметры:\n'
+            '- "с.ш" или "в.д"\n'
+            '- Диапозон ветров "слева" или "справа"\n'
+            '- Скорость ветра "мин.ветер" или "макс.ветер"\n'
+            '- "cсылка" на прогноз\n'
+            '- "описание"\n'
+            '3. Новый пораметр\n'
+            'Пример: <b>Услон слева 315</b>\n'
+            'Еще пример: <b>Переезд описане Это лучшая горка!</b>')
 
 def err_mess(err):
     now = datetime.now()
@@ -37,11 +50,12 @@ def repost(all_spot, message=None):
 
 
 def meteo(a):
+    db = DataBase()
     degree = [(i["win_l"], i["win_r"]) for i in a["fly_time"]]
     fly_hour = [tm['time'][:-2] for tm in a["fly_time"]]
     only_fly_hour = [tm['time'] for tm in a["fly_time"] if tm['wdg'] > 0 and tm['w_s'] > 0]
     hour_point = [str(int((tm['w_s'] + tm['wdg']) * 100)) for tm in a["fly_time"]]
-    prognoz = get_spot(a['meteo']['city'])[0][7]
+    prognoz = db.get_spot(a['meteo']['city'])[0][7]
     meteo_dict = {}
     for i in a['meteo']['time'][0]:
         meteo_dict[i] = []
@@ -78,7 +92,7 @@ def meteo_all(a):
 
 def step_1():
     return f'Впишите данные пользуясь шаблоном (писать только то, что в "")\n\n'\
-           f'"Название горки" : с.ш"0.0000" : в.д"0.0000" : направление ветра с лева"градусы" : с права"градусы"' \
+           f'"Название горки" : с.ш"0.0000" : в.д"0.0000" : направление ветра с лева "градусы" : с права"градусы"' \
            f' : минимальный ветре"м/с" : максимальный ветер"м/с" : "ссылка на прогноз" : "описание"\n\n'\
            f'Для поиска координат <a href="https://geotree.ru/coordinates">ссылка</a>'
 

@@ -1,6 +1,7 @@
 import traceback
 from envparse import Env
-from functions import mess, button, database
+from functions import mess, button, suport
+from functions.database import DataBase
 from functions.row_request import RowReq, MyBot
 from functions.get_meteo import analytics_main
 from functions.meteo import add_main
@@ -13,13 +14,14 @@ def main():
     ADMIN_PASSWORD = env.str("ADMIN_PASSWORD")
     row_req = RowReq(token=TOKEN, base_url='https://api.telegram.org')
     bot = MyBot(token=TOKEN, row_req=row_req)
+    db = DataBase()
 
     @bot.message_handler(commands=['start'])
     def start(message):
         print(f'{message.from_user.first_name} - command: {message.text}')
         mes = mess.header_mess(message)
         bot.send_message(message.chat.id, mes, parse_mode='html')
-        database.add_user(message)
+        db.add_user(message)
 
     @bot.message_handler(commands=['days'])
     def show_days(message):
@@ -41,6 +43,23 @@ def main():
         res = analytics_main(date_f)
         bot.send_message(message.chat.id, mess.repost(res, message.text), parse_mode='html')
 
+    @bot.message_handler(commands=['cheng_param'])
+    def cheng_param(message):
+        print(f'{message.from_user.first_name} - command: {message.text}')
+        if str(message.chat.id) in ADMIN_PASSWORD:
+            message_for_user = mess.cheng_param_mess()
+            mes = bot.send_message(message.chat.id, message_for_user, parse_mode='html')
+            bot.register_next_step_handler(mes, cheng)
+
+    def cheng(message):
+        try:
+            lst_command = suport.re_amcommand_change(str(message.text))
+            db.cheng_params(*lst_command)
+            bot.send_message(message.chat.id, "Изменения добавлены!", parse_mode='html')
+        except Exception as err:
+            print(err)
+            bot.send_message(message.chat.id, "Вы допустили ошибку!", parse_mode='html')
+
     @bot.message_handler(commands=['dell_spot'])
     def dell_spot_mess(message):
         print(f'{message.from_user.first_name} - command: {message.text}')
@@ -52,10 +71,10 @@ def main():
             bot.send_message(message.chat.id, 'Доступ только для админов!', parse_mode='html')
 
     def dell_spot(message):
-        res = database.dell_spot(message)
+        res = db.dell_spot(message)
         if 'удалена' in res:
             bot.send_message(message.chat.id, 'Обновление прогноза...', parse_mode='html')
-            add_main(database.create_new_spot_dict())
+            add_main(db.create_new_spot_dict())
             bot.send_message(message.chat.id, res, parse_mode='html')
 
     @bot.message_handler(commands=['get_spot'])
@@ -66,9 +85,9 @@ def main():
 
     def show_spot(message):
         if str(message.text).lower() == 'все':
-            bot.send_message(message.chat.id, mess.mess_get_all_spot(database.get_spot()), parse_mode='html')
+            bot.send_message(message.chat.id, mess.mess_get_all_spot(db.get_spot()), parse_mode='html')
         else:
-            res = mess.mess_get_spot(database.get_spot(str(message.text)))
+            res = mess.mess_get_spot(db.get_spot(str(message.text)))
             bot.send_message(message.chat.id, res, parse_mode='html')
 
     @bot.message_handler(commands=['add_spot'])
@@ -83,10 +102,10 @@ def main():
     def add_spot_step(message):
         try:
             arg = mess.step_2(str(message.text))
-            res_ans = database.add_spot(arg)
+            res_ans = db.add_spot(arg)
             if 'добавлена' in res_ans:
                 bot.send_message(message.chat.id, 'Обновление прогноза...', parse_mode='html')
-                add_main(database.create_new_spot_dict())
+                # add_main(database.create_new_spot_dict())
             bot.send_message(message.chat.id, res_ans, parse_mode='html')
         except IndexError:
             bot.send_message(message.chat.id, f"<b>В данных ошибка или их не достаточно</b>", parse_mode='html')
