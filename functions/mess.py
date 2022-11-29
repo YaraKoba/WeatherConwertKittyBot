@@ -36,9 +36,6 @@ def repost(all_spot, message=None):
     return str_post
 
 
-
-
-
 def meteo(a):
     degree = [(i["win_l"], i["win_r"]) for i in a["fly_time"]]
     fly_hour = [tm['time'][:-2] for tm in a["fly_time"]]

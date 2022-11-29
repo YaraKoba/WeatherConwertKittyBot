@@ -55,9 +55,15 @@ def add_spot(arg):
                     url text,
                     description text
                 )""")
-        c.execute("INSERT INTO spot_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                  (arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7], arg[8]))
-        db.commit()
+        c.execute(f"SELECT spot_name FROM spot_data")
+        iter = [spot[0] for spot in c.fetchall()]
+        if arg[0] not in iter:
+            c.execute("INSERT INTO spot_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                      (arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7], arg[8]))
+            db.commit()
+            return f"Горка: '{arg[0]}', добавлена"
+        else:
+            return 'Горка уже длбавлена'
 
 
 def get_spot(spot_name=None):
@@ -73,7 +79,8 @@ def get_spot(spot_name=None):
         return item
 
 
-def dell_spot(spot_name):
+def dell_spot(message):
+    spot_name = str(message.text)
     with sqlite3.connect("bot_db.db") as db:
         c = db.cursor()
         c.execute("SELECT * FROM spot_data")
@@ -84,6 +91,12 @@ def dell_spot(spot_name):
                 db.commit()
                 return f'Горка "{spot_name}" удалена'
         return f'Горка "{spot_name}" не найдена'
+
+
+def create_new_spot_dict():
+    fly_spot = [spot[0] for spot in get_spot()]
+    new_spot_dict = {spot: get_spot_lat_lon(spot)[0] for spot in fly_spot}
+    return new_spot_dict
 
 
 def get_spot_lat_lon(spot_name):

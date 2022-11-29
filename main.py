@@ -3,6 +3,7 @@ from envparse import Env
 from functions import mess, button, database
 from functions.row_request import RowReq, MyBot
 from functions.get_meteo import analytics_main
+from functions.meteo import add_main
 
 
 def main():
@@ -51,8 +52,11 @@ def main():
             bot.send_message(message.chat.id, 'Доступ только для админов!', parse_mode='html')
 
     def dell_spot(message):
-        res = database.dell_spot(str(message.text))
-        bot.send_message(message.chat.id, res, parse_mode='html')
+        res = database.dell_spot(message)
+        if 'удалена' in res:
+            bot.send_message(message.chat.id, 'Обновление прогноза...', parse_mode='html')
+            add_main(database.create_new_spot_dict())
+            bot.send_message(message.chat.id, res, parse_mode='html')
 
     @bot.message_handler(commands=['get_spot'])
     def get_spot(message):
@@ -79,8 +83,11 @@ def main():
     def add_spot_step(message):
         try:
             arg = mess.step_2(str(message.text))
-            database.add_spot(arg)
-            bot.send_message(message.chat.id, "Горка добавлена", parse_mode='html')
+            res_ans = database.add_spot(arg)
+            if 'добавлена' in res_ans:
+                bot.send_message(message.chat.id, 'Обновление прогноза...', parse_mode='html')
+                add_main(database.create_new_spot_dict())
+            bot.send_message(message.chat.id, res_ans, parse_mode='html')
         except IndexError:
             bot.send_message(message.chat.id, f"<b>В данных ошибка или их не достаточно</b>", parse_mode='html')
 

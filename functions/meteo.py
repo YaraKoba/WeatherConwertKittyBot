@@ -2,7 +2,8 @@ import requests
 from envparse import Env
 import json
 import os
-from database import get_spot_lat_lon as l_l, get_spot
+from multiprocessing import pool
+from functions.database import create_new_spot_dict
 
 
 def getreq(lat, lon):
@@ -18,7 +19,7 @@ def getreq(lat, lon):
     return json.loads(info.text)
 
 
-def add_main(spot_dict: dict, name_file):
+def add_main(spot_dict: dict, name_file='spot_weather.json'):
     """
     Makes a query from dict 'spot_dict',
     dell old 'name_file',
@@ -37,18 +38,6 @@ def add_main(spot_dict: dict, name_file):
         json.dump(spot_dict, fi)
 
 
-def create_new_spot_dict():
-    fly_spot = [spot[0] for spot in get_spot()]
-    new_spot_dict = {spot: l_l(spot)[0] for spot in fly_spot}
-    return new_spot_dict
-
-
 if __name__ == "__main__":
-    city_dict = {'Казань': [55.7890, 49.1220],
-                 'Инополис': [55.7636, 48.7366],
-                 'Лаишево': [54.4040, 49.5490]}
-    file_weather = 'weather.json'
-    file_spot_weather = 'spot_weather.json'
-    add_main(city_dict, file_weather)
-    add_main(create_new_spot_dict(), file_spot_weather)
+    add_main(create_new_spot_dict())
 
