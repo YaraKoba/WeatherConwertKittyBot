@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import requests
 from envparse import Env
 import json

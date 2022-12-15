@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from envparse import Env
 import mess
 import button
