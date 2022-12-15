@@ -10,7 +10,7 @@ def pull_chat_id():
         item = c.fetchall()
         for el in item:
             try:
-                res_lst += [el[2]]
+                res_lst += [(el[2], el[3])]
             except Exception as err:
                 print(err)
                 c.execute("DELETE FROM usr_data WHERE chat_id=?", (el[2],))
@@ -81,8 +81,8 @@ class DataBase:
         for el in item:
             if el[2] == message.chat.id:
                 return False
-        self.c.execute("INSERT INTO usr_data VALUES (?, ?, ?)",
-                       (message.from_user.first_name, message.from_user.last_name, message.chat.id))
+        self.c.execute("INSERT INTO usr_data VALUES (?, ?, ?, ?)",
+                       (message.from_user.first_name, message.from_user.last_name, message.chat.id, 'Yes'))
         self.c.execute("SELECT * FROM usr_data")
         item = self.c.fetchall()
         print(item)
@@ -101,6 +101,11 @@ class DataBase:
         fly_spot = [spot[0] for spot in self.get_spot()]
         new_spot_dict = {spot: self.get_spot_lat_lon(spot)[0] for spot in fly_spot}
         return new_spot_dict
+
+    def remainder_client(self, command, chat_id):
+        sql = f"UPDATE usr_data SET reminder='{command}' WHERE chat_id={chat_id}"
+        self.db.execute(sql)
+        self.db.commit()
 
 
 def get_weather(name_file='spot_weather.json'):

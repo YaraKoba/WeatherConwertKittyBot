@@ -6,16 +6,16 @@ from functions.row_request import RowReq, MyBot
 from functions.get_meteo import analytics_main
 from functions.meteo import add_main
 
+env = Env()
+TOKEN = env.str("TOKEN")
+ADMIN_ID = env.str("ADMIN_ID")
+ADMIN_PASSWORD = env.str("ADMIN_PASSWORD")
+row_req = RowReq(token=TOKEN, base_url='https://api.telegram.org')
+bot = MyBot(token=TOKEN, row_req=row_req)
+db = DataBase()
+
 
 def main():
-    env = Env()
-    TOKEN = env.str("TOKEN")
-    ADMIN_ID = env.str("ADMIN_ID")
-    ADMIN_PASSWORD = env.str("ADMIN_PASSWORD")
-    row_req = RowReq(token=TOKEN, base_url='https://api.telegram.org')
-    bot = MyBot(token=TOKEN, row_req=row_req)
-    db = DataBase()
-
     @bot.message_handler(commands=['start'])
     def start(message):
         print(f'{message.from_user.first_name} - command: {message.text}')
@@ -43,7 +43,15 @@ def main():
         res = analytics_main(date_f)
         bot.send_message(message.chat.id, mess.repost(res, message.text), parse_mode='html')
 
-    @bot.message_handler(commands=['cheng_param'])
+    @bot.message_handler(commands=['go', 'stop'])
+    def go_start_reminder(message):
+        print(f'{message.from_user.first_name} - command: {message.text}')
+        if message.text in '/go':
+            db.remainder_client('Yes', message.chat.id)
+        else:
+            db.remainder_client('No', message.chat.id)
+
+    @bot.message_handler(commands=['chang_param'])
     def cheng_param(message):
         print(f'{message.from_user.first_name} - command: {message.text}')
         if str(message.chat.id) in ADMIN_PASSWORD:
