@@ -1,10 +1,12 @@
 import traceback
 from envparse import Env
-from functions import mess, button, suport
-from functions.database import DataBase
-from functions.row_request import RowReq, MyBot
-from functions.get_meteo import analytics_main
-from functions.meteo import add_main
+import mess
+import suport
+import button
+from database import DataBase
+from row_request import RowReq, MyBot
+from get_meteo import analytics_main
+from meteo import add_main
 
 env = Env()
 TOKEN = env.str("TOKEN")

@@ -1,6 +1,6 @@
-from functions.database import get_weather
-from functions.database import DataBase
-from functions.button import cheng_format_utc as uts
+from database import get_weather
+from database import DataBase
+from button import cheng_format_utc as uts
 import re
 
 

@@ -1,5 +1,5 @@
-from functions.database import DataBase
-from functions.suport import *
+from database import DataBase
+from suport import *
 import re
 
 
