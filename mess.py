@@ -80,7 +80,7 @@ def meteo(a):
 
 
 def meteo_all(a):
-    m_d = {key: [str(tm[key]) for tm in a if 5 < int(tm['time'][:-3]) < 22] for key in a[0]}
+    m_d = {key: [str(tm[key]) for tm in a if int(tm['time'][:-3]) in [9, 15, 18]] for key in a[0]}
     lst_time = [tm[1:-3] for tm in m_d['time']]
     return (f'&#128337;  <u>|{"|".join(list(map(lambda x: f"  {x}  ", lst_time)))}ч</u>\n'
             f'&#127788;  |{"|".join(list(map(lam_wind_all, m_d["wind_speed"])))}м/с\n'

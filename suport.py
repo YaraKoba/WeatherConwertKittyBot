@@ -24,7 +24,7 @@ def lam_degree(x):
 
 def lam_temp(x):
     res = int(round(float(x)))
-    if 0 < res < 10:
+    if 0 <= res < 10:
         res = f'   {res}   '
     elif res >= 10:
         res = f'  {res}  '
@@ -47,7 +47,7 @@ def lam_wind_all(x):
 def ampop(m_d):
     pop_time = [tm["time"][1:-3] for tm in m_d if float(tm['pop']) >= 0.4]
     if len(pop_time) > 0:
-        return f'Осадки в ({" ".join(pop_time)}) ч'
+        return f'Осадки в\n({", ".join(pop_time)}) ч'
     else:
         return 'Осадков нет'
 
