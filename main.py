@@ -25,6 +25,7 @@ def main():
         print(f'{message.from_user.first_name} - command: {message.text}')
         mes = mess.header_mess(message)
         bot.send_message(message.chat.id, mes, parse_mode='html')
+        show_days(message)
         db.add_user(message)
 
     @bot.message_handler(commands=['days'])
@@ -43,9 +44,12 @@ def main():
     @bot.message_handler(regexp=r"[А-Я][а-я]\s\d{2}\s[а-я]+\b")
     def one_day_fly(message):
         print(f'{message.from_user.first_name} - command: {message.text}')
-        date_f = [mess.re_amdate(message.text)]
-        res = analytics_main(date_f)
-        bot.send_message(message.chat.id, mess.repost(res, message.text), parse_mode='html')
+        try:
+            date_f = [mess.re_amdate(message.text)]
+            res = analytics_main(date_f)
+            bot.send_message(message.chat.id, mess.repost(res, message.text), parse_mode='html')
+        except IndexError:
+            show_days(message)
 
     @bot.message_handler(commands=['go', 'stop'])
     def go_start_reminder(message):
@@ -62,6 +66,8 @@ def main():
             message_for_user = mess.cheng_param_mess()
             mes = bot.send_message(message.chat.id, message_for_user, parse_mode='html')
             bot.register_next_step_handler(mes, cheng)
+        else:
+            bot.send_message(message.chat.id, 'Доступ только для админов!', parse_mode='html')
 
     def cheng(message):
         try:

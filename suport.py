@@ -4,43 +4,39 @@ import re
 
 def lam_wind(x):
     res = str(round(float(x), 1))
-    if len(res) == 1:
-        res = f' {res}.0  '
-    elif len(res) == 3:
-        res = f' {res}  '
     return res
 
 
 def lam_degree(x):
     res = str(x)
     if len(res) == 1:
-        res = f'  {x}°  '
+        res = f'{x}°'
     elif len(res) == 2:
-        res = f'  {x}° '
+        res = f'{x}°'
     elif len(res) == 3:
-        res = f' {x}°'
+        res = f'{x}°'
     return res
 
 
 def lam_temp(x):
     res = int(round(float(x)))
     if 0 <= res < 10:
-        res = f'   {res}   '
+        res = f'{res}'
     elif res >= 10:
-        res = f'  {res}  '
+        res = f'{res}'
     elif 0 > res >= -9:
-        res = f'  {res}   '
+        res = f'{res}'
     elif res <= -10:
-        res = f'  {res} '
+        res = f'{res}'
     return str(res)
 
 
 def lam_wind_all(x):
     res = str(round(float(x)))
     if len(res) == 1:
-        res = f'   {res}   '
+        res = f'{res}'
     elif len(res) == 2:
-        res = f'  {res}  '
+        res = f'{res}'
     return res
 
 
@@ -55,35 +51,35 @@ def ampop(m_d):
 def amdegree(dg):
     dg = int(dg)
     if 345 < dg or 15 > dg:
-        return '  с  '
+        return 'с'
     elif 15 <= dg <= 30:
         return 'ссв'
     elif 30 <= dg <= 60:
-        return ' св '
+        return 'св'
     elif 60 <= dg <= 75:
         return 'всв'
     elif 75 <= dg <= 105:
-        return '  в  '
+        return 'в'
     elif 105 <= dg <= 120:
-        return ' вюв '
+        return 'вюв'
     elif 120 <= dg <= 150:
         return 'юв'
     elif 150 <= dg <= 165:
         return 'ююв'
     elif 165 <= dg <= 195:
-        return '  ю  '
+        return 'ю'
     elif 195 <= dg <= 210:
         return 'ююз'
     elif 210 <= dg <= 240:
-        return ' юз '
+        return 'юз'
     elif 240 <= dg <= 255:
         return 'зюз'
     elif 255 <= dg <= 285:
-        return '  з  '
+        return 'з'
     elif 285 <= dg <= 300:
         return 'зсз'
     elif 300 <= dg <= 330:
-        return ' сз '
+        return 'сз'
     elif 330 <= dg <= 345:
         return 'ссз'
 
