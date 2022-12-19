@@ -10,7 +10,7 @@ def pull_chat_id():
         item = c.fetchall()
         for el in item:
             try:
-                res_lst += [(el[2], el[3])]
+                res_lst += [(el[0], el[2], el[3])]
             except Exception as err:
                 print(err)
                 c.execute("DELETE FROM usr_data WHERE chat_id=?", (el[2],))

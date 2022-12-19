@@ -34,6 +34,7 @@ def add_main(spot_dict: dict, name_file='spot_weather.json'):
 
 
 if __name__ == "__main__":
+    print("Прогноз обновлен")
     db = DataBase()
     sp_dict = db.create_new_spot_dict()
     add_main(sp_dict)
