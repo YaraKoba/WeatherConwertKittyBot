@@ -1,6 +1,6 @@
-from database import get_weather
-from database import DataBase
-from button import cheng_format_utc as uts
+from db.database import get_weather
+from db.database import DataBase
+from suport_fl.button import cheng_format_utc as uts
 import re
 
 
@@ -31,7 +31,7 @@ def oneday_meteo(day, j_info, city):
 
 
 def analytics_main(lst_day: list):
-    spot_dict = get_weather('spot_weather.json')
+    spot_dict = get_weather('../db/spot_weather.json')
     meteo_all_days = [oneday_meteo(one_day, spot_dict[spot], spot) for one_day in lst_day for spot in spot_dict]
     total_res = ([add_point_to_spot(one_day) for one_day in meteo_all_days
                   if add_point_to_spot(one_day)['time_point'] + add_point_to_spot(one_day)['wind_point'] > 0])

@@ -4,7 +4,7 @@ import sqlite3
 
 def pull_chat_id():
     res_lst = []
-    with sqlite3.connect("bot_db.db") as db:
+    with sqlite3.connect("db/bot_db.db") as db:
         c = db.cursor()
         c.execute("SELECT * FROM usr_data")
         item = c.fetchall()
@@ -18,7 +18,7 @@ def pull_chat_id():
 
 
 class DataBase:
-    def __init__(self, file_name='bot_db.db'):
+    def __init__(self, file_name='db/bot_db.db'):
         self.db = sqlite3.connect(file_name, check_same_thread=False)
         self.c = self.db.cursor()
 
@@ -109,7 +109,7 @@ class DataBase:
 
 
 def get_weather(name_file='spot_weather.json'):
-    with open(f'{name_file}', 'r') as fi:
+    with open(f'db/{name_file}', 'r') as fi:
         j_meteo = json.load(fi)
     return j_meteo
 

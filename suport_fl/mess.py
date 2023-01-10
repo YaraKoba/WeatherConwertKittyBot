@@ -1,5 +1,5 @@
-from database import DataBase
-from suport import *
+from db.database import DataBase
+from suport_fl.suport import *
 import prettytable as pt
 import re
 

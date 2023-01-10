@@ -1,5 +1,5 @@
 from telebot import types
-from mess import amdate
+from suport_fl.suport import amdate
 from datetime import date, timedelta, datetime
 
 

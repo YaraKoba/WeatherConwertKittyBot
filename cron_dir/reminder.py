@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 from envparse import Env
-import mess
-import button
-from database import pull_chat_id
-from get_meteo import analytics_main
-from row_request import *
+from suport_fl import button, mess
+from db.database import pull_chat_id
+from meteo_analysis.get_meteo import analytics_main
+from suport_fl.row_request import *
 
 env = Env()
 TOKEN = env.str("TOKEN")

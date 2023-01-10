@@ -3,7 +3,7 @@
 import requests
 from envparse import Env
 import json
-from database import DataBase
+from db.database import DataBase
 
 
 def getreq(lat, lon):
@@ -29,7 +29,7 @@ def add_main(spot_dict: dict, name_file='spot_weather.json'):
     """
     for city in spot_dict:
         spot_dict[city] = getreq(lat=spot_dict[city][0], lon=spot_dict[city][1])
-    with open(f'{name_file}', 'w') as fi:
+    with open(f'db/{name_file}', 'w') as fi:
         json.dump(spot_dict, fi)
 
 
