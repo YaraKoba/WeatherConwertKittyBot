@@ -13,10 +13,10 @@ def header_mess(message):
             f'/days - обновить дни\n'
             f'/get_spot - Посмотреть добавленные горки\n\n'
             f'<b>Обозначения в прогнозе:</b>\n'
-            f'T - Время в часах\n'
+            f'Time - Время в часах\n'
             f't°C - Температура воздуха\n'
             f'm/s - Скорость ветра\n'
-            f'm/s - Порывы ветра\n'
+            f'M/S - Порывы ветра\n'
             f'Dg° - Направление ветра\n'
             f'V% - Оценка погодных условий (Сила и Направление ветра)\n\n'
             f'<b>Нажмите на дату, чтобы узнать где полетать</b> &#128526;')
@@ -62,7 +62,7 @@ def repost(all_spot, message=None):
 
 def meteo(a):
     db = DataBase()
-    dict_img = {"wind_speed": 'm/s', "wind_gust": 'm/s', "wind_degree": 'Dg°', "temp": 't°C', 'point': 'V%'}
+    dict_img = {"wind_speed": 'm/s', "wind_gust": 'M/S', "wind_degree": 'Dg°', "temp": 't°C', 'point': 'V%'}
     degree = [(i["win_l"], i["win_r"]) for i in a["fly_time"]]
     fly_hour = [tm['time'][:-2] for tm in a["fly_time"]]
     only_fly_hour = [tm['time'] for tm in a["fly_time"] if tm['wdg'] > 0 and tm['w_s'] > 0]
@@ -76,10 +76,10 @@ def meteo(a):
             for z in j:
                 m_d[z] += [j[z]]
     m_d['point'] = [str(int((tm['w_s'] + tm['wdg']) * 100)) for tm in a["fly_time"]]
-    lst_time = ['T'] + [tm[1:-3] for tm in m_d['time']]
+    lst_time = ['Time'] + [tm[1:-3] for tm in m_d['time']]
     table_meteo = pt.PrettyTable(lst_time)
     table_meteo.align = 'r'
-    table_meteo.align['T'] = 'l'
+    table_meteo.align['Time'] = 'l'
     for key in m_d:
         if key not in ['time', 'pop', 'rain']:
             if key in ["wind_speed", "wind_gust"]: m_d[key] = list(map(lam_wind_all, m_d[key]))
@@ -96,12 +96,12 @@ def meteo(a):
 
 
 def easy_meteo(a):
-    dict_img = {"wind_speed": 'm/s', "wind_gust": 'm/s', "wind_degree": 'Dg°', "temp": 't°C'}
+    dict_img = {"wind_speed": 'm/s', "wind_gust": 'M/S', "wind_degree": 'Dg°', "temp": 't°C'}
     m_d = {key: [str(tm[key]) for tm in a if int(tm['time'][:-3]) in [9, 15, 18]] for key in a[0]}
-    lst_time = ['T'] + [tm[1:-3] for tm in m_d['time']]
+    lst_time = ['Time'] + [tm[1:-3] for tm in m_d['time']]
     table_meteo = pt.PrettyTable(lst_time)
     table_meteo.align = 'r'
-    table_meteo.align['T'] = 'l'
+    table_meteo.align['Time'] = 'l'
     for key in m_d:
         if key not in ['time', 'pop', 'rain']:
             if key in ["wind_speed", "wind_gust"]: m_d[key] = list(map(lam_wind_all, m_d[key]))

@@ -18,8 +18,8 @@ db = DataBase()
 
 
 def main():
-    @bot.message_handler(commands=['start'])
-    def start(message):
+    @bot.message_handler(commands=['start', 'help'])
+    def start_help(message):
         print(f'{message.from_user.first_name} - command: {message.text}')
         mes = mess.header_mess(message)
         bot.send_message(message.chat.id, mes, parse_mode='html')
