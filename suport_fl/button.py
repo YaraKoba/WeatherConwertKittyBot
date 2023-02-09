@@ -1,4 +1,4 @@
-from telebot import types
+from aiogram import types
 from suport_fl.suport import amdate
 from datetime import date, timedelta, datetime
 

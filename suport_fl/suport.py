@@ -2,6 +2,22 @@ from datetime import date, datetime
 import re
 
 
+def build_user_info(message):
+    return {
+            'user_id': message.id,
+            'city_name': 'Kazan',
+            'username': message.username,
+            'first_name': message.first_name,
+            'last_name': message.last_name,
+            'language_code': message.language_code,
+            'is_blocked_bot': False,
+            'is_banned': False,
+            'is_admin': False,
+            'is_moderator': False,
+            'get_remainder': True,
+            'city': 1
+            }
+
 def lam_wind(x):
     res = str(round(float(x), 1))
     return res

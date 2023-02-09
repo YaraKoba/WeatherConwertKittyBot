@@ -29,13 +29,13 @@ def add_main(spot_dict: dict, name_file='spot_weather.json'):
     """
     for city in spot_dict:
         spot_dict[city] = getreq(lat=spot_dict[city][0], lon=spot_dict[city][1])
-    with open(f'db/{name_file}', 'w') as fi:
+    with open(f'/Users/yarakoba/PycharmProjects/para_kzn_bot/db/{name_file}', 'w') as fi:
         json.dump(spot_dict, fi)
 
 
 if __name__ == "__main__":
     print("Прогноз обновлен")
-    db = DataBase()
+    db = DataBase('/Users/yarakoba/PycharmProjects/para_kzn_bot/db/bot_db.db')
     sp_dict = db.create_new_spot_dict()
     add_main(sp_dict)
 

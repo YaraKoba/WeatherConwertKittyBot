@@ -1,5 +1,3 @@
-from db.database import get_weather
-from db.database import DataBase
 from suport_fl.button import cheng_format_utc as uts
 import re
 
@@ -30,21 +28,25 @@ def oneday_meteo(day, j_info, city):
     return oneday_dict
 
 
-def analytics_main(lst_day: list):
-    spot_dict = get_weather('../db/spot_weather.json')
-    meteo_all_days = [oneday_meteo(one_day, spot_dict[spot], spot) for one_day in lst_day for spot in spot_dict]
-    total_res = ([add_point_to_spot(one_day) for one_day in meteo_all_days
-                  if add_point_to_spot(one_day)['time_point'] + add_point_to_spot(one_day)['wind_point'] > 0])
+def analytics_main(lst_day: list, meteo_spot_dict, spots):
+    meteo_all_days = [oneday_meteo(one_day, meteo_spot_dict[spot], spot)
+                      for one_day in lst_day for spot in meteo_spot_dict]
+    total_res = ([add_point_to_spot(one_day, spots) for one_day in meteo_all_days
+                  if add_point_to_spot(one_day, spots)['time_point'] + add_point_to_spot(one_day, spots)['wind_point'] > 0])
     total_res = sorted(total_res, key=lambda j: j['time_point'] + j['wind_point'], reverse=True)
     total_res = sorted(total_res, key=lambda j: j['meteo']['date'], reverse=False)
     return total_res if len(total_res) > 0 else meteo_all_days[0]
 
 
-def add_point_to_spot(meteo_one_days):
+def add_point_to_spot(meteo_one_days, spots):
     spot = meteo_one_days['city']
+    sp_d = {}
+    for s in spots:
+        if s['name'] == spot:
+            sp_d = s
     sun_up = uts(meteo_one_days['sun_up'])[11:-3]
     sun_down = uts(meteo_one_days['sun_down'])[11:-3]
-    one_day_points = [get_point(tree_h, spot) for tree_h in meteo_one_days['time']]
+    one_day_points = [get_point(tree_h, spot, sp_d) for tree_h in meteo_one_days['time']]
     return analytics_data_point(one_day_points, sun_up, sun_down, meteo_one_days)
 
 
@@ -66,17 +68,16 @@ def analytics_data_point(o_d_p, sun_up, sun_down, meteo_one_days):
     return result
 
 
-def get_point(m_t, spot):
-    db = DataBase()
+def get_point(m_t, spot, spots):
     pop = m_t['pop']
     rain = m_t['rain']
     w_g = m_t['wind_gust']
     w_s = m_t['wind_speed']
     wdg = m_t['wind_degree']
-    wdg_l = int(db.get_spot(spot)[0][3])
-    wdg_r = int(db.get_spot(spot)[0][4])
-    w_min = int(db.get_spot(spot)[0][5])
-    w_max = int(db.get_spot(spot)[0][6])
+    wdg_l = int(spots['wind_degree_l'])
+    wdg_r = int(spots['wind_degree_r'])
+    w_min = int(spots['wind_min'])
+    w_max = int(spots['wind_max'])
     point_dict = {'time': m_t['time'], 'wdg': 0, 'w_s': 0, 'win_dg': wdg, 'win_l': wdg_l, 'win_r': wdg_r}
     if pop < 0.6 and rain < 0.6 and w_g < 10 and (w_g - w_s) < 7:
         if wdg_l < wdg_r:

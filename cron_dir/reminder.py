@@ -8,7 +8,6 @@ from suport_fl.row_request import *
 
 env = Env()
 TOKEN = env.str("TOKEN")
-ADMIN_ID = env.str("ADMIN_ID")
 row_req = RowReq(token=TOKEN, base_url='https://api.telegram.org')
 bot = MyBot(token=TOKEN, row_req=row_req)
 

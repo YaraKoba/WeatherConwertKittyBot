@@ -4,3 +4,4 @@ test.py
 bot_db.db
 spot_list.txt
 spot_wether.json
+/.env

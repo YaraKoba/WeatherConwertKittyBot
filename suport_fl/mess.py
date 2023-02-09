@@ -1,4 +1,4 @@
-from db.database import DataBase
+
 from suport_fl.suport import *
 import prettytable as pt
 import re
@@ -43,7 +43,7 @@ def err_mess(err):
            f"Date:  {now.strftime('%d-%m-%Y %H:%M')}"
 
 
-def repost(all_spot, message=None):
+def repost(all_spot, spots, message=None):
     str_post = ''
     data = ''
     if type(all_spot) == dict:
@@ -56,17 +56,21 @@ def repost(all_spot, message=None):
             data = dct['meteo']['date']
             str_post += f'\n--- <b>{amdate(data)}</b> ---\n\n'
         str_post += f'<u><b>{dct["meteo"]["city"]}</b></u>\n'
-        str_post += meteo(dct)
+        str_post += meteo(dct, spots)
     return str_post
 
 
-def meteo(a):
-    db = DataBase()
+def meteo(a, spots):
+    sp_dc = {}
+    for sp in spots:
+        if sp['name'] == a['meteo']['city']:
+            sp_dc = sp
+            break
     dict_img = {"wind_speed": 'm/s', "wind_gust": 'M/S', "wind_degree": 'Dg°', "temp": 't°C', 'point': 'V%'}
     degree = [(i["win_l"], i["win_r"]) for i in a["fly_time"]]
     fly_hour = [tm['time'][:-2] for tm in a["fly_time"]]
     only_fly_hour = [tm['time'] for tm in a["fly_time"] if tm['wdg'] > 0 and tm['w_s'] > 0]
-    prognoz = db.get_spot(a['meteo']['city'])[0][7]
+    prognoz = sp_dc['url_forecast']
     m_d = {}
     for i in a['meteo']['time'][0]:
         m_d[i] = []
