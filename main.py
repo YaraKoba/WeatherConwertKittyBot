@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-# from envparse import Env
-from suport_fl import button, mess
-# from db.database import DataBase
+
+from suport_fl import button, mess, suport
+from dotenv import load_dotenv
+import os
 # from meteo_analysis.get_meteo import analytics_main
 
 
@@ -11,14 +12,12 @@ from aiogram import Bot, Dispatcher, types, executor
 from db.manager import ManagerDjango
 
 logging.basicConfig(level=logging.DEBUG)
+load_dotenv()
 
-TOKEN = '5769290145:AAEgvyOxHJoKqPQmXBqQye7ESQZvixoWc9s'
+TOKEN = os.getenv('TOKEN')
 bot = Bot(token=TOKEN)
 dip = Dispatcher(bot=bot)
 manager = ManagerDjango()
-
-
-# db = DataBase('/Users/yarakoba/PycharmProjects/para_kzn_bot/db/bot_db.db')
 
 
 @dip.message_handler(commands=['start', 'help'])
@@ -50,29 +49,34 @@ async def all_date_fly(message: types.Message):
 async def one_day_fly(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
     try:
-        date_f = [mess.re_amdate(message.text)]
+        date_f = [suport.re_amdate(message.text)]
         res = await manager.create_meteo_message(message, date_f)
         await message.answer(res, parse_mode='html')
     except IndexError:
         await show_days(message)
-#
-#
-# @dip.message_handler(commands=['go', 'stop'])
-# async def go_start_reminder(message: types.Message):
-#     print(f'{message.from_user.first_name} - command: {message.text}')
-#     if message.text in '/go':
-#         db.remainder_client('Yes', message.chat.id)
-#         await message.answer('Теперь вы будете получать уведомления')
-#     else:
-#         db.remainder_client('No', message.chat.id)
-#         await message.answer('Теперь вы НЕ будете получать уведомления')
 
 
-# @dip.message_handlers(commands=['get_spot'])
-# async def get_spot(message: types.Message):
-#     print(f'{message.from_user.first_name} - command: {message.text}')
-#     mes = bot.send_message(message.chat.id, "Введите 'Все' или 'Название горки'", parse_mode='html')
-#     await bot.register_next_step_handler(mes, show_spot)
+@dip.message_handler(commands=['go', 'stop'])
+async def go_start_reminder(message: types.Message):
+    print(f'{message.from_user.first_name} - command: {message.text}')
+    if message.text in '/go':
+        update_inf = {'get_remainder': True}
+        await manager.update_user(message, update_inf)
+        await message.answer('Теперь вы будете получать уведомления')
+    else:
+        update_inf = {'get_remainder': False}
+        await manager.update_user(message, update_inf)
+        await message.answer('Теперь вы НЕ будете получать уведомления')
+
+
+@dip.message_handler(commands=['get_spot'])
+async def get_spot(message: types.Message):
+    print(f'{message.from_user.first_name} - command: {message.text}')
+    spots, user = await manager.get_user_and_spots(message)
+    markup = button.spots_btn(spots)
+    await message.answer(f'Все добавленные горки города {user["city_name"]}', reply_markup=markup)
+
+
 #
 #
 # def show_spot(message):

@@ -29,10 +29,12 @@ def oneday_meteo(day, j_info, city):
 
 
 def analytics_main(lst_day: list, meteo_spot_dict, spots):
+    print(lst_day)
     meteo_all_days = [oneday_meteo(one_day, meteo_spot_dict[spot], spot)
                       for one_day in lst_day for spot in meteo_spot_dict]
     total_res = ([add_point_to_spot(one_day, spots) for one_day in meteo_all_days
-                  if add_point_to_spot(one_day, spots)['time_point'] + add_point_to_spot(one_day, spots)['wind_point'] > 0])
+                  if add_point_to_spot(one_day, spots)['time_point'] +
+                  add_point_to_spot(one_day, spots)['wind_point'] > 0])
     total_res = sorted(total_res, key=lambda j: j['time_point'] + j['wind_point'], reverse=True)
     total_res = sorted(total_res, key=lambda j: j['meteo']['date'], reverse=False)
     return total_res if len(total_res) > 0 else meteo_all_days[0]

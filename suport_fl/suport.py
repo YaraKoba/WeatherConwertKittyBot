@@ -2,21 +2,29 @@ from datetime import date, datetime
 import re
 
 
-def build_user_info(message):
-    return {
-            'user_id': message.id,
-            'city_name': 'Kazan',
-            'username': message.username,
-            'first_name': message.first_name,
-            'last_name': message.last_name,
-            'language_code': message.language_code,
-            'is_blocked_bot': False,
-            'is_banned': False,
-            'is_admin': False,
-            'is_moderator': False,
-            'get_remainder': True,
-            'city': 1
-            }
+def build_user_info(message, update=None):
+    user_inf_by_put_or_post = {
+                                'user_id': message.id,
+                                'city_name': 'Kazan',
+                                'username': message.username,
+                                'first_name': message.first_name,
+                                'last_name': message.last_name,
+                                'language_code': message.language_code,
+                                'is_blocked_bot': False,
+                                'is_banned': False,
+                                'is_admin': False,
+                                'is_moderator': False,
+                                'get_remainder': True,
+                                'city': 1
+                                }
+
+    if update is not None:
+        for up in update:
+            user_inf_by_put_or_post[up] = update[up]
+
+    return user_inf_by_put_or_post
+
+
 
 def lam_wind(x):
     res = str(round(float(x), 1))
@@ -101,7 +109,7 @@ def amdegree(dg):
 
 
 def amdate(dat):
-    mon_dct = {'01': 'Января', '02': 'феврыля', '03': 'марта', '04': 'апреля',
+    mon_dct = {'01': 'Января', '02': 'февраля', '03': 'марта', '04': 'апреля',
                '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
                '09': 'сентября', '10': 'октября', '11': 'ноября', '12': 'декабря'}
     week_dict = {1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб', 7: 'Вс'}
@@ -114,12 +122,13 @@ def amdate(dat):
 
 
 def re_amdate(dat: str):
-    mon_dct = {'01': 'Января', '02': 'феврыля', '03': 'марта', '04': 'апреля',
+    mon_dct = {'01': 'Января', '02': 'февраля', '03': 'марта', '04': 'апреля',
                '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
                '09': 'сентября', '10': 'октября', '11': 'ноября', '12': 'декабря'}
     new_dat = str(dat).split(' ')
     mon = ''
     for num in mon_dct:
+        print(mon_dct[num], new_dat[2], mon_dct[num] == new_dat[2])
         if mon_dct[num] == new_dat[2]:
             mon = num
     day = new_dat[1]

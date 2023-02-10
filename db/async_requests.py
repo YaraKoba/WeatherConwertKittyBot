@@ -1,3 +1,6 @@
+import os
+from dotenv import load_dotenv
+
 import aiohttp
 import asyncio
 from suport_fl.set_up import *
@@ -18,9 +21,19 @@ async def _post(host, path, data=None):
             return await resp.json()
 
 
+async def _put(host, path, data=None):
+    address = host + path
+    print(data)
+    async with aiohttp.ClientSession() as session:
+        async with session.put(address, data=data) as resp:
+            print(resp.status)
+            return await resp.json()
+
+
 class RequestToDjango:
-    def __init__(self, host):
+    def __init__(self, host, open_api_host):
         self.host = host
+        self.open_api_host = open_api_host
 
     async def get_all_users(self):
         return await _get(self.host, USER_PATH)
@@ -34,26 +47,31 @@ class RequestToDjango:
     async def post_new_users(self, inf_usr):
         return await _post(self.host, USER_PATH, data=inf_usr)
 
+    async def put_update_users(self, inf_usr):
+        user_id = str(inf_usr['user_id'])
+        return await _put(self.host, USER_PATH + user_id + '/', data=inf_usr)
+
     async def get_meteo(self, latlon):
+        load_dotenv()
         latlon = tuple(latlon)
-        APIKEY = '11c0d3dc6093f7442898ee49d2430d20'
+        api_key = str(os.getenv("API_KEY"))
         param = {'lang': 'ru',
                  'lat': latlon[0],
                  'lon': latlon[1],
-                 'appid': APIKEY,
+                 'appid': api_key,
                  'units': 'metric'
                  }
-        return await _get(OPEN_API_HOST, OPEN_API_PATH, param=param)
+        return await _get(self.open_api_host, OPEN_API_PATH, param=param)
 
 
 async def main(ht, mess, l):
-    req = RequestToDjango(ht)
+    req = RequestToDjango(ht, OPEN_API_HOST)
     # print(await req.get_all_users())
-    # print(await req.get_user_by_id('356760688'))
+    print(await req.get_user_by_id('356760688'))
     # print(await req.get_spots_by_city_id({'city_id': '1'}))
     # print(await req.post_new_users(mess))
-    tasks = [req.get_meteo(i) for i in l]
-    await asyncio.gather(*tasks)
+    # tasks = [req.get_meteo(i) for i in l]
+    # await asyncio.gather(*tasks)
 
 
 if __name__ == '__main__':

@@ -100,8 +100,9 @@ def meteo(a, spots):
 
 
 def easy_meteo(a):
+    print(a)
     dict_img = {"wind_speed": 'm/s', "wind_gust": 'M/S', "wind_degree": 'Dg°', "temp": 't°C'}
-    m_d = {key: [str(tm[key]) for tm in a if int(tm['time'][:-3]) in [9, 15, 18]] for key in a[0]}
+    m_d = {key: [str(tm[key]) for tm in a if int(tm['time'][:-3]) in [9, 15, 18]] for key in a[1]}
     lst_time = ['Time'] + [tm[1:-3] for tm in m_d['time']]
     table_meteo = pt.PrettyTable(lst_time)
     table_meteo.align = 'r'

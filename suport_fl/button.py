@@ -20,6 +20,14 @@ def day_btn():
     return markup
 
 
+def spots_btn(spots):
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    k = 0
+    for spot in spots:
+        k += 1
+        markup.add(types.InlineKeyboardButton(spot['name'], callback_data=str(k)))
+    return markup
+
 def step_btn():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     btn1 = types.KeyboardButton('Да')
@@ -35,4 +43,3 @@ def day_5():
 def cheng_format_utc(time_utc):
     tilda = timedelta(hours=3)
     return str(datetime.utcfromtimestamp(time_utc) + tilda)
-
