@@ -31,13 +31,7 @@ class ManagerDjango:
         return user_info, spots
 
     async def create_meteo_message(self, message, lst_days: list):
-        user_info = await self.req.get_user_by_id(str(message.from_user.id))
-
-        if len(user_info) < 2:
-            await self.create_user(message)
-            user_info = await self.req.get_user_by_id(str(message.from_user.id))
-
-        spots = await self.req.get_spots_by_city_id({'city_id': str(user_info['city'])})
+        user_info, spots = await self.get_user_and_spots(message)
 
         if user_info['city'] in self.cache_meteo:
             print('IN cache')

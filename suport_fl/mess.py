@@ -129,14 +129,14 @@ def step_2(message):
     return re.findall(reg, message)[0]
 
 
-def mess_get_spot(arg):
-    arg = arg[0]
-    return f'<b>Название:</b>  {arg[0]}\n'\
-           f'<b>Координаты:</b>  с.ш "{arg[1]}", в.д "{arg[2]}"\n'\
-           f'<b>Направление ветра:</b>  {arg[3]}°-{arg[4]}°\n'\
-           f'<b>Ветер:</b>  мин - "{arg[5]} м/с", макс - "{arg[6]} м/с"\n'\
-           f'<b>Подробный прогноз:</b>  <a href="{arg[7]}">ссылка...</a>\n'\
-           f'<b>Описание:</b>  {arg[8]}\n\n'
+def mess_get_spot(spot_dict):
+    return f'\n\n<b>Название:</b>  {spot_dict["name"]}\n'\
+           f'<b>Координаты:</b>  с.ш "{spot_dict["lat"][:7]}", в.д "{spot_dict["lon"][:7]}"\n'\
+           f'<b>Направление ветра:</b>  {spot_dict["wind_degree_l"]}°-{spot_dict["wind_degree_r"]}°\n'\
+           f'<b>Ветер:</b>  мин - "{spot_dict["wind_min"]} м/с", макс - "{spot_dict["wind_max"]} м/с"\n\n' \
+           f'<b><a href="{spot_dict["url_forecast"]}">Windy прогноз</a></b>\n' \
+           f'<b><a href="{spot_dict["url_map"]}">Google map</a></b>  \n\n' \
+           f'<b>Описание:</b>  {spot_dict["description"]}\n\n\n\n'
 
 
 def mess_get_all_spot(spots):

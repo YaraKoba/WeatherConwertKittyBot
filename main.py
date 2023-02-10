@@ -72,9 +72,21 @@ async def go_start_reminder(message: types.Message):
 @dip.message_handler(commands=['get_spot'])
 async def get_spot(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
-    spots, user = await manager.get_user_and_spots(message)
+    user, spots = await manager.get_user_and_spots(message)
     markup = button.spots_btn(spots)
     await message.answer(f'Все добавленные горки города {user["city_name"]}', reply_markup=markup)
+
+
+@dip.callback_query_handler(lambda c: c.data)
+async def process_callback_handler(callback_query: types.CallbackQuery):
+    user, spots = await manager.get_user_and_spots(callback_query)
+    spot_dict = None
+    for spot in spots:
+        if callback_query.data == spot['name']:
+            spot_dict = spot
+    if spot_dict is not None:
+        res = mess.mess_get_spot(spot_dict)
+        await bot.send_message(user['user_id'], text=res, parse_mode='html')
 
 
 #
