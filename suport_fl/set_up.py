@@ -1,4 +1,4 @@
-LOCAL_HOST = "http://localhost:63994"
+LOCAL_HOST = "http://localhost:57754/"
 USER_PATH = "/api/users/"
 SPOTS_PATH = "/api/spots/"
 OPEN_API_HOST = "https://api.openweathermap.org"

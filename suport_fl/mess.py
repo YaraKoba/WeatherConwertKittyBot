@@ -43,20 +43,24 @@ def err_mess(err):
            f"Date:  {now.strftime('%d-%m-%Y %H:%M')}"
 
 
-def repost(all_spot, spots, message=None):
+def repost(all_spot, spots, d):
     str_post = ''
     data = ''
+
     if type(all_spot) == dict:
+        message = amdate(d[0]) if len(d) == 1 else 'В ближайшие 5 дней'
         str_post += f'\n--- <b>{message}</b> ---\n\n'
-        str_post += '<u><b>К сожалению, не летно</b></u> &#128530;\n'\
+        str_post += '<u><b>Летная погода не найдена</b></u> &#128530;\n'\
                     f'{easy_meteo(all_spot["time"])}'
         return str_post
+
     for dct in all_spot:
         if data != dct['meteo']['date']:
             data = dct['meteo']['date']
             str_post += f'\n--- <b>{amdate(data)}</b> ---\n\n'
         str_post += f'<u><b>{dct["meteo"]["city"]}</b></u>\n'
         str_post += meteo(dct, spots)
+
     return str_post
 
 
@@ -100,7 +104,6 @@ def meteo(a, spots):
 
 
 def easy_meteo(a):
-    print(a)
     dict_img = {"wind_speed": 'm/s', "wind_gust": 'M/S', "wind_degree": 'Dg°', "temp": 't°C'}
     m_d = {key: [str(tm[key]) for tm in a if int(tm['time'][:-3]) in [9, 15, 18]] for key in a[1]}
     lst_time = ['Time'] + [tm[1:-3] for tm in m_d['time']]

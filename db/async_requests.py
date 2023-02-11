@@ -23,7 +23,6 @@ async def _post(host, path, data=None):
 
 async def _put(host, path, data=None):
     address = host + path
-    print(data)
     async with aiohttp.ClientSession() as session:
         async with session.put(address, data=data) as resp:
             print(resp.status)

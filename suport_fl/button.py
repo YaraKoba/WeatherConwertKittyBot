@@ -25,7 +25,6 @@ def spots_btn(spots):
     k = 0
     for spot in spots:
         k += 1
-        print(spot)
         markup.add(types.InlineKeyboardButton(spot['name'], callback_data=spot['name']))
     return markup
 

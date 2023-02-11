@@ -138,7 +138,6 @@ def re_amdate(dat: str):
 
 
 def re_amcommand_change(message):
-    print(message)
     lst_command = re.findall(r'(\w+?)\s([А-Яа-я.]+?)\s(.+)', message)
     command_dict = {'слева': "wind_degree_l", 'справа': "wind_degree_r", 'с.ш': "lat",
                     'в.д': "lon", 'макс.ветер': "w_max", 'мин.ветер': "w_min",

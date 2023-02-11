@@ -4,7 +4,6 @@
 from suport_fl import button, mess, suport
 from dotenv import load_dotenv
 import os
-# from meteo_analysis.get_meteo import analytics_main
 
 
 import logging
@@ -17,7 +16,7 @@ load_dotenv()
 TOKEN = os.getenv('TOKEN')
 bot = Bot(token=TOKEN)
 dip = Dispatcher(bot=bot)
-manager = ManagerDjango()
+manager = ManagerDjango(bot)
 
 
 @dip.message_handler(commands=['start', 'help'])
@@ -41,7 +40,8 @@ async def show_days(message: types.Message):
 async def all_date_fly(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
     date_all = button.day_5()
-    res = await manager.create_meteo_message(message, date_all)
+    user_inf, spots = await manager.get_user_and_spots(message)
+    res = await manager.create_meteo_message(city=user_inf['city'], spots=spots, lst_days=date_all)
     await message.answer(res, parse_mode='html')
 
 
@@ -50,7 +50,8 @@ async def one_day_fly(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
     try:
         date_f = [suport.re_amdate(message.text)]
-        res = await manager.create_meteo_message(message, date_f)
+        user_inf, spots = await manager.get_user_and_spots(message)
+        res = await manager.create_meteo_message(city=user_inf['city'], spots=spots, lst_days=date_f)
         await message.answer(res, parse_mode='html')
     except IndexError:
         await show_days(message)
