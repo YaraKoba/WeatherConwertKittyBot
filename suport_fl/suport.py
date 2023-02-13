@@ -128,7 +128,6 @@ def re_amdate(dat: str):
     new_dat = str(dat).split(' ')
     mon = ''
     for num in mon_dct:
-        print(mon_dct[num], new_dat[2], mon_dct[num] == new_dat[2])
         if mon_dct[num] == new_dat[2]:
             mon = num
     day = new_dat[1]

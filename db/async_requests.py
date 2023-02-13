@@ -37,6 +37,9 @@ class RequestToDjango:
     async def get_all_users(self):
         return await _get(self.host, USER_PATH)
 
+    async def get_all_city(self):
+        return await _get(self.host, CITY_PATH)
+
     async def get_user_by_id(self, user_id: str):
         return await _get(self.host, USER_PATH + user_id)
 

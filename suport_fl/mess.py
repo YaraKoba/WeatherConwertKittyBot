@@ -70,31 +70,33 @@ def meteo(a, spots):
         if sp['name'] == a['meteo']['city']:
             sp_dc = sp
             break
-    dict_img = {"wind_speed": 'm/s', "wind_gust": 'M/S', "wind_degree": 'Dg°', "temp": 't°C', 'point': 'V%'}
+
     degree = [(i["win_l"], i["win_r"]) for i in a["fly_time"]]
     fly_hour = [tm['time'][:-2] for tm in a["fly_time"]]
     only_fly_hour = [tm['time'] for tm in a["fly_time"] if tm['wdg'] > 0 and tm['w_s'] > 0]
     prognoz = sp_dc['url_forecast']
-    m_d = {}
-    for i in a['meteo']['time'][0]:
-        m_d[i] = []
+    fly_meteo = []
+
     for j in a['meteo']['time']:
         time = j["time"][:-2]
         if time in fly_hour:
-            for z in j:
-                m_d[z] += [j[z]]
-    m_d['point'] = [str(int((tm['w_s'] + tm['wdg']) * 100)) for tm in a["fly_time"]]
-    lst_time = ['Time'] + [tm[1:-3] for tm in m_d['time']]
-    table_meteo = pt.PrettyTable(lst_time)
+            fly_meteo += [j]
+
+    lst_header = ['Час', 'Вет', 'Пор', 'Н', 'Вер']
+    point = (str(int((tm['w_s'] + tm['wdg']) * 100)) for tm in a["fly_time"])
+
+    table_meteo = pt.PrettyTable(lst_header)
     table_meteo.align = 'r'
-    table_meteo.align['Time'] = 'l'
-    for key in m_d:
-        if key not in ['time', 'pop', 'rain']:
-            if key in ["wind_speed", "wind_gust"]: m_d[key] = list(map(lam_wind_all, m_d[key]))
-            if key in ["temp"]: m_d[key] = list(map(lam_temp, m_d[key]))
-            if key in ["wind_degree"]: m_d[key] = list(map(amdegree, m_d[key]))
-            row = [dict_img[key]] + m_d[key]
-            table_meteo.add_row(row)
+    table_meteo.align['time'] = 'l'
+
+    while fly_meteo:
+        one_hour = fly_meteo.pop(0)
+        time = one_hour["time"][1:-3]
+        w_s, w_g = list(map(lam_wind_all, [one_hour["wind_speed"], one_hour["wind_gust"]]))
+        wdg = one_hour["wind_degree"]
+        v = next(point)
+        table_meteo.add_row([time, w_s, w_g, wdg, v])
+
     return (f'Направление ветра:  <b>{degree[0][0]}°-{degree[0][1]}°</b>\n'
             f'<u>Общая оценка: <b>{int((a["time_point"] + a["wind_point"]) * 0.5)}%</b></u>\n'
             f'Оценка ветра:  <b>{a["wind_point"]}%</b>\n'

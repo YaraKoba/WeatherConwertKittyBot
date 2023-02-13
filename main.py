@@ -41,7 +41,7 @@ async def all_date_fly(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
     date_all = button.day_5()
     user_inf, spots = await manager.get_user_and_spots(message)
-    res = await manager.create_meteo_message(city=user_inf['city'], spots=spots, lst_days=date_all)
+    res = await manager.create_meteo_message(city=user_inf['city'], lst_days=date_all)
     await message.answer(res, parse_mode='html')
 
 
@@ -51,7 +51,7 @@ async def one_day_fly(message: types.Message):
     try:
         date_f = [suport.re_amdate(message.text)]
         user_inf, spots = await manager.get_user_and_spots(message)
-        res = await manager.create_meteo_message(city=user_inf['city'], spots=spots, lst_days=date_f)
+        res = await manager.create_meteo_message(city=user_inf['city'], lst_days=date_f)
         await message.answer(res, parse_mode='html')
     except IndexError:
         await show_days(message)

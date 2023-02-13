@@ -22,7 +22,11 @@ class ManagerDjango:
         await self.req.put_update_users(mess)
 
     async def get_all_users(self):
-        return self.req.get_all_users()
+        return await self.req.get_all_users()
+
+    async def get_all_city(self):
+        return await self.req.get_all_city()
+
 
     async def get_user_and_spots(self, message):
         user_info = await self.req.get_user_by_id(str(message.from_user.id))
@@ -34,7 +38,9 @@ class ManagerDjango:
         spots = await self.req.get_spots_by_city_id({'city_id': str(user_info['city'])})
         return user_info, spots
 
-    async def create_meteo_message(self, city, spots, lst_days: list):
+    async def create_meteo_message(self, city, lst_days: list):
+
+        spots = await self.req.get_spots_by_city_id({'city_id': str(city)})
 
         if city in self.cache_meteo:
             print('IN cache')
