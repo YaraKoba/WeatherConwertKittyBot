@@ -17,7 +17,6 @@ async def _post(host, path, data=None):
     address = host + path
     async with aiohttp.ClientSession() as session:
         async with session.post(address, data=data) as resp:
-            print(resp.status)
             return await resp.json()
 
 
@@ -25,8 +24,14 @@ async def _put(host, path, data=None):
     address = host + path
     async with aiohttp.ClientSession() as session:
         async with session.put(address, data=data) as resp:
-            print(resp.status)
             return await resp.json()
+
+
+async def _del(host, path, data=None):
+    address = host + path
+    async with aiohttp.ClientSession() as session:
+        async with session.delete(address, data=data):
+            pass
 
 
 class RequestToDjango:
@@ -52,6 +57,9 @@ class RequestToDjango:
     async def put_update_users(self, inf_usr):
         user_id = str(inf_usr['user_id'])
         return await _put(self.host, USER_PATH + user_id + '/', data=inf_usr)
+
+    async def del_users(self, user_id):
+        return await _del(self.host, USER_PATH + str(user_id) + '/')
 
     async def get_meteo(self, latlon):
         load_dotenv()

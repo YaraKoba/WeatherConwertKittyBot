@@ -11,14 +11,15 @@ def header_mess(message):
             f'<b>Команды:</b>\n/stop - <b>отключить</b> уведомления\n'
             f'/go - <b>включить</b> уведомления\n'
             f'/days - обновить дни\n'
+            f'/city - выбрать другой город\n'
             f'/get_spot - Посмотреть добавленные горки\n\n'
             f'<b>Обозначения в прогнозе:</b>\n'
-            f'Time - Время в часах\n'
-            f't°C - Температура воздуха\n'
-            f'm/s - Скорость ветра\n'
-            f'M/S - Порывы ветра\n'
-            f'Dg° - Направление ветра\n'
-            f'V% - Оценка погодных условий (Сила и Направление ветра)\n\n'
+            f'Час - Время в часах\n'
+            f'Тем - Температура воздуха в °C\n'
+            f'Вет - Ср. скорость ветра в м/с\n'
+            f'Пор - Порывы ветра в м/с\n'
+            f'Нап - Направление ветра в градусах\n'
+            f'% - Оценка погодных условий (Сила и Направление ветра)\n\n'
             f'<b>Нажмите на дату, чтобы узнать где полетать</b> &#128526;')
 
 
@@ -43,7 +44,7 @@ def err_mess(err):
            f"Date:  {now.strftime('%d-%m-%Y %H:%M')}"
 
 
-def repost(all_spot, spots, d):
+def meteo_message(all_spot, spots, d):
     str_post = ''
     data = ''
 
@@ -72,64 +73,34 @@ def meteo(a, spots):
             break
 
     degree = [(i["win_l"], i["win_r"]) for i in a["fly_time"]]
-    fly_hour = [tm['time'][:-2] for tm in a["fly_time"]]
+    fly_hour = [tm['time'][1:-3] for tm in a["fly_time"]]
     only_fly_hour = [tm['time'] for tm in a["fly_time"] if tm['wdg'] > 0 and tm['w_s'] > 0]
     prognoz = sp_dc['url_forecast']
-    fly_meteo = []
+    fly_meteo = [one_hour for one_hour in a['meteo']['time'] if one_hour['time'][1:-3] in fly_hour]
 
-    for j in a['meteo']['time']:
-        time = j["time"][:-2]
-        if time in fly_hour:
-            fly_meteo += [j]
-
-    lst_header = ['Час', 'Вет', 'Пор', 'Н', 'Вер']
+    lst_header = ['Час', 'Вет', 'Пор', 'Нап', '%']
     point = (str(int((tm['w_s'] + tm['wdg']) * 100)) for tm in a["fly_time"])
 
-    table_meteo = pt.PrettyTable(lst_header)
-    table_meteo.align = 'r'
-    table_meteo.align['time'] = 'l'
-
-    while fly_meteo:
-        one_hour = fly_meteo.pop(0)
-        time = one_hour["time"][1:-3]
-        w_s, w_g = list(map(lam_wind_all, [one_hour["wind_speed"], one_hour["wind_gust"]]))
-        wdg = one_hour["wind_degree"]
-        v = next(point)
-        table_meteo.add_row([time, w_s, w_g, wdg, v])
+    table_meteo = create_table(lst_header, fly_meteo, point)
 
     return (f'Направление ветра:  <b>{degree[0][0]}°-{degree[0][1]}°</b>\n'
             f'<u>Общая оценка: <b>{int((a["time_point"] + a["wind_point"]) * 0.5)}%</b></u>\n'
             f'Оценка ветра:  <b>{a["wind_point"]}%</b>\n'
-            f'Летные часы:  <b>{a["time_point"]}%</b> \n({" ".join(only_fly_hour)} )\n'
-            f'<pre>{table_meteo}</pre>\n&#127782;  {ampop(a["meteo"]["time"])}\n'
-            f'<a href="{prognoz}">Подробнее...</a>\n\n')
+            f'Летные часы:  <b>{a["time_point"]}%</b> \n({" ".join(only_fly_hour)} )\n\n'
+            f'&#127777;  {int(middle_temp(a["meteo"]["time"]))}\n'
+            f'&#127782;  {ampop(a["meteo"]["time"])}\n'
+            f'<pre>{table_meteo}</pre>\n'
+            f'<a href="{prognoz}">Подробнее...</a>\n\n\n')
 
 
 def easy_meteo(a):
-    dict_img = {"wind_speed": 'm/s', "wind_gust": 'M/S', "wind_degree": 'Dg°', "temp": 't°C'}
-    m_d = {key: [str(tm[key]) for tm in a if int(tm['time'][:-3]) in [9, 15, 18]] for key in a[1]}
-    lst_time = ['Time'] + [tm[1:-3] for tm in m_d['time']]
-    table_meteo = pt.PrettyTable(lst_time)
-    table_meteo.align = 'r'
-    table_meteo.align['Time'] = 'l'
-    for key in m_d:
-        if key not in ['time', 'pop', 'rain']:
-            if key in ["wind_speed", "wind_gust"]: m_d[key] = list(map(lam_wind_all, m_d[key]))
-            if key in ["temp"]: m_d[key] = list(map(lam_temp, m_d[key]))
-            if key in ["wind_degree"]: m_d[key] = list(map(amdegree, m_d[key]))
-            row = [dict_img[key]] + m_d[key]
-            table_meteo.add_row(row)
+    fly_meteo = [one_hour for one_hour in a if str(one_hour['time'][1:-3]) in ['09', '15', '18']]
+    lst_header = ['Час', 'Вет', 'Пор', 'Нап']
+    table_meteo = create_table(lst_header, fly_meteo)
     return f'<pre>{table_meteo}</pre>\n&#127782;  {ampop(a)}\n'
 
 
-def step_1():
-    return f'Впишите данные пользуясь шаблоном (писать только то, что в "")\n\n'\
-           f'"Название горки" : с.ш"0.0000" : в.д"0.0000" : направление ветра с лева "градусы" : с права"градусы"' \
-           f' : минимальный ветре"м/с" : максимальный ветер"м/с" : "ссылка на прогноз" : "описание"\n\n'\
-           f'Для поиска координат <a href="https://geotree.ru/coordinates">ссылка</a>'
-
-
-def step_2(message):
+def get_lst_spots_from_txt(message):
     reg = r'(\w+\b).+?(\d{2}[\.\,]\d{4}).+?(\d{2}[\.\,]\d{4}).+?(\d+).+?(\d+).+?(\d+).+?(\d+).+?(https?.+?)\s.+?(\w+.+)'
     return re.findall(reg, message)[0]
 
@@ -142,16 +113,6 @@ def mess_get_spot(spot_dict):
            f'<b><a href="{spot_dict["url_forecast"]}">Windy прогноз</a></b>\n' \
            f'<b><a href="{spot_dict["url_map"]}">Google map</a></b>  \n\n' \
            f'<b>Описание:</b>  {spot_dict["description"]}\n\n\n\n'
-
-
-def mess_get_all_spot(spots):
-    res = ''
-    k = 0
-    spot_sort = sorted([all_inf_spot[0] for all_inf_spot in spots])
-    for spot in spot_sort:
-        k += 1
-        res += f'<b>{k}.</b> {spot}\n'
-    return res
 
 
 if __name__ == '__main__':

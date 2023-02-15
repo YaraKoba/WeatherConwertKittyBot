@@ -41,7 +41,7 @@ async def all_date_fly(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
     date_all = button.day_5()
     user_inf, spots = await manager.get_user_and_spots(message)
-    res = await manager.create_meteo_message(city=user_inf['city'], lst_days=date_all)
+    res = await manager.create_meteo_message(city=user_inf['city'], chat_id=user_inf['user_id'], lst_days=date_all)
     await message.answer(res, parse_mode='html')
 
 
@@ -51,7 +51,7 @@ async def one_day_fly(message: types.Message):
     try:
         date_f = [suport.re_amdate(message.text)]
         user_inf, spots = await manager.get_user_and_spots(message)
-        res = await manager.create_meteo_message(city=user_inf['city'], lst_days=date_f)
+        res = await manager.create_meteo_message(city=user_inf['city'], chat_id=user_inf['user_id'], lst_days=date_f)
         await message.answer(res, parse_mode='html')
     except IndexError:
         await show_days(message)
@@ -70,6 +70,14 @@ async def go_start_reminder(message: types.Message):
         await message.answer('Теперь вы НЕ будете получать уведомления')
 
 
+@dip.message_handler(commands=['city'])
+async def change_city(message: types.Message):
+    cities = await manager.get_all_city()
+    btn_cities = button.cities_btn(cities)
+    user_inf, _ = await manager.get_user_and_spots(message)
+    await message.answer(f'Текущее место: {user_inf["city_name"]}', reply_markup=btn_cities)
+
+
 @dip.message_handler(commands=['get_spot'])
 async def get_spot(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
@@ -85,19 +93,15 @@ async def process_callback_handler(callback_query: types.CallbackQuery):
     for spot in spots:
         if callback_query.data == spot['name']:
             spot_dict = spot
+
     if spot_dict is not None:
         res = mess.mess_get_spot(spot_dict)
         await bot.send_message(user['user_id'], text=res, parse_mode='html')
-
-
-#
-#
-# def show_spot(message):
-#     if str(message.text).lower() == 'все':
-#         bot.send_message(message.chat.id, mess.mess_get_all_spot(db.get_spot()), parse_mode='html')
-#     else:
-#         res = mess.mess_get_spot(db.get_spot(str(message.text)))
-#         bot.send_message(message.chat.id, res, parse_mode='html')
+    else:
+        city_inf = callback_query.data.split()
+        update_inf = {'city': city_inf[0], 'city_name': city_inf[1]}
+        await manager.update_user(callback_query, update_inf)
+        await bot.send_message(user['user_id'], text=f"Текущее место изменено на: {city_inf[1]}")
 
 
 def ran_server():

@@ -1,22 +1,26 @@
 from datetime import date, datetime
+from statistics import mean
+
+import prettytable as pt
 import re
+from typing import List
 
 
 def build_user_info(message, update=None):
     user_inf_by_put_or_post = {
-                                'user_id': message.id,
-                                'city_name': 'Kazan',
-                                'username': message.username,
-                                'first_name': message.first_name,
-                                'last_name': message.last_name,
-                                'language_code': message.language_code,
-                                'is_blocked_bot': False,
-                                'is_banned': False,
-                                'is_admin': False,
-                                'is_moderator': False,
-                                'get_remainder': True,
-                                'city': 1
-                                }
+        'user_id': message.id,
+        'city_name': 'Kazan',
+        'username': message.username,
+        'first_name': message.first_name,
+        'last_name': message.last_name,
+        'language_code': message.language_code,
+        'is_blocked_bot': False,
+        'is_banned': False,
+        'is_admin': False,
+        'is_moderator': False,
+        'get_remainder': True,
+        'city': 1
+    }
 
     if update is not None:
         for up in update:
@@ -24,6 +28,25 @@ def build_user_info(message, update=None):
 
     return user_inf_by_put_or_post
 
+
+def create_table(header: list, body: List[dict], point=None):
+    table_meteo = pt.PrettyTable(header)
+    table_meteo.align = 'r'
+    table_meteo.align['Час'] = 'l'
+
+    while body:
+        one_hour = body.pop(0)
+        time = one_hour["time"][1:-3]
+        w_s, w_g = list(map(lam_wind_all, [one_hour["wind_speed"], one_hour["wind_gust"]]))
+        wdg = one_hour["wind_degree"]
+        if point:
+            v = next(point)
+            row = [time, w_s, w_g, wdg, v]
+        else:
+            row = [time, w_s, w_g, wdg]
+        table_meteo.add_row(row)
+
+    return table_meteo
 
 
 def lam_wind(x):
@@ -70,6 +93,10 @@ def ampop(m_d):
         return f'Осадки в\n({", ".join(pop_time)}) ч'
     else:
         return 'Осадков нет'
+
+
+def middle_temp(fly_lst):
+    return mean([temp['temp'] for temp in fly_lst])
 
 
 def amdegree(dg):

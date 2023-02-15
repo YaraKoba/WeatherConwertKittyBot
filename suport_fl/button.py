@@ -22,11 +22,18 @@ def day_btn():
 
 def spots_btn(spots):
     markup = types.InlineKeyboardMarkup(row_width=2)
-    k = 0
     for spot in spots:
-        k += 1
         markup.add(types.InlineKeyboardButton(spot['name'], callback_data=spot['name']))
     return markup
+
+
+def cities_btn(cities):
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    for city in cities:
+        data = f'{city["id"]} {city["name"]}'
+        markup.add(types.InlineKeyboardButton(city['name'], callback_data=data))
+    return markup
+
 
 def step_btn():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)

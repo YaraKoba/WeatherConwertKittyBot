@@ -20,8 +20,10 @@ manager = ManagerDjango(bot)
 async def send_mess(user_id, mess):
     try:
         await bot.send_message(chat_id=user_id, text=mess, parse_mode='html')
-    except Exception:
-        print(1)
+    except Exception as err:
+        print(err)
+        print(f'del user id: {user_id}')
+        await manager.del_user(user_id)
 
 
 async def _main():
@@ -32,7 +34,6 @@ async def _main():
     res = await asyncio.gather(*(manager.create_meteo_message(city_id['id'], date_all) for city_id in cities))
     city_name = [s['id'] for s in cities]
     result_spots_dict = {t: r for (t, r) in zip(city_name, res)}
-    print(cities, users)
     for user in users:
         if user['get_remainder']:
             await send_mess(user['user_id'], result_spots_dict[user['city']])
