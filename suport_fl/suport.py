@@ -30,6 +30,8 @@ def build_user_info(message, update=None):
 
 
 def create_table(header: list, body: List[dict], point=None):
+    if not body:
+        raise Exception('Dates are not update')
     table_meteo = pt.PrettyTable(header)
     table_meteo.align = 'r'
     table_meteo.align['Час'] = 'l'

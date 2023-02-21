@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-
-
 from suport_fl import button, mess, suport
 from dotenv import load_dotenv
 import os
@@ -26,6 +24,7 @@ async def start_help(message: types.Message):
     print(message.from_user)
     await manager.create_user(message)
     await message.answer(mes, parse_mode='html')
+    await change_city(message)
     await show_days(message)
 
 
@@ -53,7 +52,7 @@ async def one_day_fly(message: types.Message):
         user_inf, spots = await manager.get_user_and_spots(message)
         res = await manager.create_meteo_message(city=user_inf['city'], chat_id=user_inf['user_id'], lst_days=date_f)
         await message.answer(res, parse_mode='html')
-    except IndexError:
+    except (IndexError, Exception):
         await show_days(message)
 
 

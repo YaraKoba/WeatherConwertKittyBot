@@ -20,7 +20,8 @@ def header_mess(message):
             f'Пор - Порывы ветра в м/с\n'
             f'Нап - Направление ветра в градусах\n'
             f'% - Оценка погодных условий (Сила и Направление ветра)\n\n'
-            f'<b>Нажмите на дату, чтобы узнать где полетать</b> &#128526;')
+            f'<b>Выберете город и нажмите на дату, чтобы узнать где полетать</b> &#128526;\n'
+            f'p.s. Если вашего города нет в списке, напишите мне @Kobyakov_Yaroslav')
 
 
 def cheng_param_mess():
@@ -80,7 +81,6 @@ def meteo(a, spots):
 
     lst_header = ['Час', 'Вет', 'Пор', 'Нап', '%']
     point = (str(int((tm['w_s'] + tm['wdg']) * 100)) for tm in a["fly_time"])
-
     table_meteo = create_table(lst_header, fly_meteo, point)
 
     return (f'Направление ветра:  <b>{degree[0][0]}°-{degree[0][1]}°</b>\n'

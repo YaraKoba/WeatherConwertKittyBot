@@ -6,7 +6,6 @@ from suport_fl.suport import build_user_info
 from meteo_analysis import get_meteo
 from suport_fl.mess import meteo_message
 
-
 class ManagerDjango:
     def __init__(self, bot):
         self.req = RequestToDjango(LOCAL_HOST, OPEN_API_HOST)
