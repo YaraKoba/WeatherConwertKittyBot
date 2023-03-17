@@ -2,12 +2,12 @@
 import asyncio
 
 from dotenv import load_dotenv
-from suport_fl import button
+from bot.suport_fl import button
 import os
 
 import logging
 from aiogram import Bot
-from db.manager import ManagerDjango
+from bot.db.manager import ManagerDjango
 
 logging.basicConfig(level=logging.DEBUG)
 load_dotenv()

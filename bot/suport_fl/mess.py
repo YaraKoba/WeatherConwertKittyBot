@@ -1,6 +1,5 @@
 
 from suport_fl.suport import *
-import prettytable as pt
 import re
 
 

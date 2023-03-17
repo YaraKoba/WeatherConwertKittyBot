@@ -1,0 +1,11 @@
+services:
+  bot:
+    build:
+      context: .
+    volumes:
+      - ./bot:/bot
+    env_file:
+      - ./.env
+#    command:
+#      - sh -c "python main.py"
+    restart: always

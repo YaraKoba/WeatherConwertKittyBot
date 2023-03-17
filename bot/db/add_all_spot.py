@@ -1,6 +1,6 @@
 
 from db import database
-from suport_fl.mess import get_lst_spots_from_txt
+from bot.suport_fl.mess import get_lst_spots_from_txt
 
 db = database.DataBase('bot_db.db')
 
