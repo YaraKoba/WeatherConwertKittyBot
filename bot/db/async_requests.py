@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 
 import aiohttp
+from aiohttp import BasicAuth
 import asyncio
 from suport_fl.set_up import *
 
@@ -13,18 +14,26 @@ async def _get(host, path, param=None):
             return await resp.json()
 
 
-async def _post(host, path, data=None):
+async def _post(host, path, log, pas, data=None):
     address = host + path
+    auth = BasicAuth(log, pas)
     async with aiohttp.ClientSession() as session:
-        async with session.post(address, data=data) as resp:
-            return await resp.json()
+        async with session.post(address, data=data, auth=auth) as resp:
+            if resp.status in [200, 201]:
+                return await resp.json()
+            else:
+                print(f"{resp.status}, ERR")
 
 
-async def _put(host, path, data=None):
+async def _put(host, path, log, pas, data=None):
     address = host + path
+    auth = BasicAuth(log, pas)
     async with aiohttp.ClientSession() as session:
-        async with session.put(address, data=data) as resp:
-            return await resp.json()
+        async with session.put(address, data=data, auth=auth) as resp:
+            if resp.status == 200:
+                return await resp.json()
+            else:
+                print(f"{resp.status}, ERR")
 
 
 async def _del(host, path, data=None):
@@ -36,6 +45,10 @@ async def _del(host, path, data=None):
 
 class RequestToDjango:
     def __init__(self, host, open_api_host):
+        load_dotenv()
+        self.api_key = str(os.getenv("API_KEY"))
+        self.admin_login = str(os.getenv("ADMIN_LOGIN"))
+        self.admin_password = str(os.getenv("ADMIN_PASSWORD"))
         self.host = host
         self.open_api_host = open_api_host
 
@@ -52,23 +65,27 @@ class RequestToDjango:
         return await _get(self.host, SPOTS_PATH, param=city_id)
 
     async def post_new_users(self, inf_usr):
-        return await _post(self.host, USER_PATH, data=inf_usr)
+        log, pas = self.admin_login, self.admin_password
+        return await _post(self.host, USER_PATH, log, pas, data=inf_usr)
+
+    async def post_spots(self, inf_spot):
+        log, pas = self.admin_login, self.admin_password
+        return await _post(self.host, SPOTS_PATH, log, pas, data=inf_spot)
 
     async def put_update_users(self, inf_usr):
+        log, pas = self.admin_login, self.admin_password
         user_id = str(inf_usr['user_id'])
-        return await _put(self.host, USER_PATH + user_id + '/', data=inf_usr)
+        return await _put(self.host, USER_PATH + user_id + '/', log, pas, data=inf_usr)
 
     async def del_users(self, user_id):
         return await _del(self.host, USER_PATH + str(user_id) + '/')
 
     async def get_meteo(self, latlon):
-        load_dotenv()
         latlon = tuple(latlon)
-        api_key = str(os.getenv("API_KEY"))
         param = {'lang': 'ru',
                  'lat': latlon[0],
                  'lon': latlon[1],
-                 'appid': api_key,
+                 'appid': self.api_key,
                  'units': 'metric'
                  }
         return await _get(self.open_api_host, OPEN_API_PATH, param=param)

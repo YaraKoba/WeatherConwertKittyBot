@@ -1,4 +1,4 @@
-LOCAL_HOST = "http://localhost:51011/"
+LOCAL_HOST = "https://parabot.nakolenke.org"
 USER_PATH = "/api/users/"
 SPOTS_PATH = "/api/spots/"
 CITY_PATH = "/api/city/"

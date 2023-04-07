@@ -3,7 +3,6 @@ from suport_fl import mess, button, suport
 from dotenv import load_dotenv
 import os
 
-
 import logging
 from aiogram import Bot, Dispatcher, types, executor
 from db.manager import ManagerDjango
@@ -17,15 +16,21 @@ dip = Dispatcher(bot=bot)
 manager = ManagerDjango(bot)
 
 
-@dip.message_handler(commands=['start', 'help'])
+@dip.message_handler(commands='start')
 async def start_help(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
     mes = mess.header_mess(message)
-    print(message.from_user)
-    await manager.create_user(message)
+    print(await manager.create_user(message))
     await message.answer(mes, parse_mode='html')
     await change_city(message)
     await show_days(message)
+
+
+@dip.message_handler(commands='help')
+async def get_help(message: types.Message):
+    print(f'{message.from_user.first_name} - command: {message.text}')
+    mes = mess.help_mess()
+    await message.answer(mes, parse_mode='html')
 
 
 @dip.message_handler(commands=['days'])

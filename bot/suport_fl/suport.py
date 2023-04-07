@@ -28,6 +28,23 @@ def build_user_info(message, update=None):
 
     return user_inf_by_put_or_post
 
+def build_spot_info(message, file=None):
+
+    spot_inf = {
+        "city_name": "",
+        "name": "",
+        "description": "",
+        "url_map": "",
+        "url_forecast": "",
+        "lat": null,
+        "lon": null,
+        "wind_degree_l": null,
+        "wind_degree_r": null,
+        "wind_min": null,
+        "wind_max": null,
+        "city": null
+    }
+
 
 def create_table(header: list, body: List[dict], point=None):
     if not body:

@@ -6,6 +6,7 @@ from suport_fl.suport import build_user_info
 from meteo_analysis import get_meteo
 from suport_fl.mess import meteo_message
 
+
 class ManagerDjango:
     def __init__(self, bot):
         self.req = RequestToDjango(LOCAL_HOST, OPEN_API_HOST)
@@ -51,6 +52,7 @@ class ManagerDjango:
                 await self.bot.send_message(chat_id, text='Прогноз обновляется...')
             self.cache_meteo[city] = await asyncio.gather(*(self.req.get_meteo((sp['lat'], sp['lon']))
                                                             for sp in spots))
+
             result = self.cache_meteo[city]
             loop = asyncio.get_event_loop()
             asyncio.run_coroutine_threadsafe(self.clean_cache(), loop)
