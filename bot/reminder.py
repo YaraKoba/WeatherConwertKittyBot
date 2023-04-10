@@ -30,7 +30,6 @@ async def _main():
     date_all = button.day_5()
     cities = await manager.get_all_city()
     users = await manager.get_all_users()
-
     res = await asyncio.gather(*(manager.create_meteo_message(city_id['id'], date_all) for city_id in cities))
     city_name = [s['id'] for s in cities]
     result_spots_dict = {t: r for (t, r) in zip(city_name, res)}
