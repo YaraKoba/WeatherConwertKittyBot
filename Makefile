@@ -1,7 +1,8 @@
 venv:
 		virtualenv venv
-		source venv/bin/activate
 
+venv_act:
+		source /usr/local/www/www9/para_kzn_bot/venv/bin/activate
 requirements:
 		pip install -r requirements.txt
 
@@ -14,3 +15,6 @@ clean:
 
 run_bot:
 		python ./bot/main.py
+
+reminder:
+		python ./bot/reminder.py
