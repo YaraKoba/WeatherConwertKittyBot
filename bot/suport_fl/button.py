@@ -1,6 +1,6 @@
 from aiogram import types
 from suport_fl.suport import amdate
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta, datetime, timezone
 
 
 def c_d(numb: int):
@@ -35,18 +35,11 @@ def cities_btn(cities):
     return markup
 
 
-def step_btn():
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    btn1 = types.KeyboardButton('Да')
-    btn2 = types.KeyboardButton('Нет')
-    markup.add(btn1, btn2)
-    return markup
-
-
 def day_5():
     return [str(c_d(0)), str(c_d(1)), str(c_d(2)), str(c_d(3)), str(c_d(4))]
 
 
-def cheng_format_utc(time_utc):
-    tilda = timedelta(hours=3)
-    return str(datetime.utcfromtimestamp(time_utc) + tilda)
+def cheng_format_utc(time_utc, time_zone):
+    offset = timedelta(seconds=time_zone)
+    dt_object = datetime.fromtimestamp(time_utc, timezone(offset))
+    return dt_object

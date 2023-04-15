@@ -28,34 +28,17 @@ def build_user_info(message, update=None):
 
     return user_inf_by_put_or_post
 
-def build_spot_info(message, file=None):
-
-    spot_inf = {
-        "city_name": "",
-        "name": "",
-        "description": "",
-        "url_map": "",
-        "url_forecast": "",
-        "lat": null,
-        "lon": null,
-        "wind_degree_l": null,
-        "wind_degree_r": null,
-        "wind_min": null,
-        "wind_max": null,
-        "city": null
-    }
-
 
 def create_table(header: list, body: List[dict], point=None):
     if not body:
         raise Exception('Dates are not update')
     table_meteo = pt.PrettyTable(header)
     table_meteo.align = 'r'
-    table_meteo.align['Час'] = 'l'
+    table_meteo.align['Ч'] = 'l'
 
     while body:
         one_hour = body.pop(0)
-        time = one_hour["time"][1:-3]
+        time = one_hour["time"][:-3]
         w_s, w_g = list(map(lam_wind_all, [one_hour["wind_speed"], one_hour["wind_gust"]]))
         wdg = one_hour["wind_degree"]
         if point:

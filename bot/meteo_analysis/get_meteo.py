@@ -1,17 +1,15 @@
 from suport_fl.button import cheng_format_utc as uts
-import re
 
 
 def oneday_meteo(day, j_info, city):
-    # print(city, j_info)
-    reg = r'(\d{4})(.)(\d{2})(.)(\d{2})(\s.{5})(.+)'
-    sun_up = j_info['city']['sunrise']
-    sun_down = j_info['city']['sunset']
-    oneday_dict = {'city': city, 'date': day, 'sun_up': sun_up, 'sun_down': sun_down, 'time': []}
-    for n in j_info['list']:
-        day_hour = n
-        if day_hour['dt_txt'][:-9] == day:
-            time_data = re.sub(reg, r'\6', day_hour['dt_txt'])
+    timezone = j_info['city']['timezone']
+    sun_up = uts(j_info['city']['sunrise'], timezone).strftime("%H:%M")
+    sun_down = uts(j_info['city']['sunset'], timezone).strftime("%H:%M")
+    oneday_dict = {'city': city, 'date': day, 'sun_up': sun_up, 'sun_down': sun_down, 'timezone': timezone, 'time': []}
+    for day_hour in j_info['list']:
+        data_obj = uts(day_hour['dt'], timezone)
+        if data_obj.strftime("%Y-%m-%d") == day:
+            time_data = data_obj.strftime("%H:%M")
             temp = day_hour['main']['temp']
             wind_speed = day_hour['wind']['speed']
             wind_gust = day_hour['wind']['gust']
@@ -48,8 +46,8 @@ def add_point_to_spot(meteo_one_days, spots):
     for s in spots:
         if s['name'] == spot:
             sp_d = s
-    sun_up = uts(meteo_one_days['sun_up'])[11:-3]
-    sun_down = uts(meteo_one_days['sun_down'])[11:-3]
+    sun_up = meteo_one_days['sun_up']
+    sun_down = meteo_one_days['sun_down']
     one_day_points = [get_point(tree_h, spot, sp_d) for tree_h in meteo_one_days['time']]
     return analytics_data_point(one_day_points, sun_up, sun_down, meteo_one_days)
 
@@ -57,7 +55,7 @@ def add_point_to_spot(meteo_one_days, spots):
 def analytics_data_point(o_d_p, sun_up, sun_down, meteo_one_days):
     int_up = int(sun_up[:-3])
     int_down = int(sun_down[:-3])
-    sort_hours = [t_h for t_h in o_d_p if int_up - 1 <= int(t_h['time'][:-3]) <= int_down + 1]
+    sort_hours = [t_h for t_h in o_d_p if int_up + 1 <= int(t_h['time'][:-3]) <= int_down + 1]
     try:
         point_fly_time = int(len([t_h for t_h in sort_hours if t_h['wdg'] > 0
                                   and t_h['w_s'] > 0]) / len(sort_hours) * 100)

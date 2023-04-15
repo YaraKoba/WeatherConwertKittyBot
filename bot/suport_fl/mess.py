@@ -88,10 +88,10 @@ def meteo(a, spots):
             break
 
     degree = [(i["win_l"], i["win_r"]) for i in a["fly_time"]]
-    fly_hour = [tm['time'][1:-3] for tm in a["fly_time"]]
+    fly_hour = [tm['time'][:-3] for tm in a["fly_time"]]
     only_fly_hour = [tm['time'] for tm in a["fly_time"] if tm['wdg'] > 0 and tm['w_s'] > 0]
     prognoz = sp_dc['url_forecast']
-    fly_meteo = [one_hour for one_hour in a['meteo']['time'] if one_hour['time'][1:-3] in fly_hour]
+    fly_meteo = [one_hour for one_hour in a['meteo']['time'] if one_hour['time'][:-3] in fly_hour]
 
     lst_header = ['Ч', 'В', 'Пор', 'Нап', '%']
     point = (str(int((tm['w_s'] + tm['wdg']) * 100)) for tm in a["fly_time"])
@@ -108,7 +108,7 @@ def meteo(a, spots):
 
 
 def easy_meteo(a):
-    fly_meteo = [one_hour for one_hour in a if str(one_hour['time'][1:-3]) in ['09', '15', '18']]
+    fly_meteo = [one_hour for one_hour in a if str(one_hour['time'][:-3]) in ['09', '15', '18']]
     lst_header = ['Час', 'Вет', 'Пор', 'Нап']
     table_meteo = create_table(lst_header, fly_meteo)
     return (f'&#127777;  {int(middle_temp(a))}\n'
