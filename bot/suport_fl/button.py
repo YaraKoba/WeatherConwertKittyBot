@@ -1,45 +1,24 @@
 from aiogram import types
-from suport_fl.suport import amdate
-from datetime import date, timedelta, datetime, timezone
-
-
-def c_d(numb: int):
-    delta = timedelta(days=numb)
-    return date.today() + delta
+from suport_fl.suport import amdate, get_day
 
 
 def day_btn():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    btn1 = types.KeyboardButton(amdate(str(c_d(0))))
-    btn2 = types.KeyboardButton(amdate(str(c_d(1))))
-    btn3 = types.KeyboardButton(amdate(str(c_d(2))))
-    btn4 = types.KeyboardButton(amdate(str(c_d(3))))
-    btn5 = types.KeyboardButton(amdate(str(c_d(4))))
-    btn6 = types.KeyboardButton(f'Все летные дни!')
-    markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
+    for day in range(5):
+        btn = types.KeyboardButton(amdate(str(get_day(day))))
+        markup.add(btn)
+    btn = types.KeyboardButton(f'Сейчас')
+    markup.add(btn)
     return markup
 
 
-def spots_btn(spots):
-    markup = types.InlineKeyboardMarkup(row_width=2)
-    for spot in spots:
-        markup.add(types.InlineKeyboardButton(spot['name'], callback_data=spot['name']))
+def change_function_btn():
+    name_functions = ['Погода', 'Конвертировать валюты', 'Котики!', 'опросы']
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    for function in name_functions:
+        markup.add(types.InlineKeyboardButton(function, callback_data=function))
     return markup
 
 
-def cities_btn(cities):
-    markup = types.InlineKeyboardMarkup(row_width=2)
-    for city in cities:
-        data = f'{city["id"]} {city["name"]}'
-        markup.add(types.InlineKeyboardButton(city['name'], callback_data=data))
-    return markup
 
 
-def day_5():
-    return [str(c_d(0)), str(c_d(1)), str(c_d(2)), str(c_d(3)), str(c_d(4))]
-
-
-def cheng_format_utc(time_utc, time_zone):
-    offset = timedelta(seconds=time_zone)
-    dt_object = datetime.fromtimestamp(time_utc, timezone(offset))
-    return dt_object

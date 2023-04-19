@@ -1,32 +1,19 @@
-from datetime import date, datetime
 from statistics import mean
-
+from datetime import date, timedelta, datetime, timezone
 import prettytable as pt
 import re
 from typing import List
 
 
-def build_user_info(message, update=None):
-    user_inf_by_put_or_post = {
-        'user_id': message.id,
-        'city_name': 'Kazan',
-        'username': message.username,
-        'first_name': message.first_name,
-        'last_name': message.last_name,
-        'language_code': message.language_code,
-        'is_blocked_bot': False,
-        'is_banned': False,
-        'is_admin': False,
-        'is_moderator': False,
-        'get_remainder': True,
-        'city': 1
-    }
+def get_day(numb: int):
+    delta = timedelta(days=numb)
+    return date.today() + delta
 
-    if update is not None:
-        for up in update:
-            user_inf_by_put_or_post[up] = update[up]
 
-    return user_inf_by_put_or_post
+def cheng_format_utc(time_utc, time_zone):
+    offset = timedelta(seconds=time_zone)
+    dt_object = datetime.fromtimestamp(time_utc, timezone(offset))
+    return dt_object
 
 
 def create_table(header: list, body: List[dict], point=None):
