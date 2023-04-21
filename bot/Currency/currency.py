@@ -25,4 +25,4 @@ class Currency:
 
 def create_cur_text(answer, amount):
     return f'{amount} {answer["from"]} в {answer["to"]} по курсу {answer["rate"]}\n' \
-           f'<b>ОТВЕТ: {str(float(amount) * answer["rate"])[:-3]} {answer["to"]}</b>'
+           f'<b>ОТВЕТ: {str(float(amount) * answer["rate"])[:4]} {answer["to"]}</b>'

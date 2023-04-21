@@ -1,6 +1,6 @@
 from typing import List
 import prettytable as pt
-from suport_fl.suport import cheng_format_utc as uts, amdate
+from suport_fl.support import cheng_format_utc as uts, amdate
 import datetime
 
 
@@ -32,17 +32,9 @@ def create_text(lst_day: list, meteo_dict, right_now=None):
             meteo = meteo_dict
         str_post += f'\n--- <b>{data}</b> ---\n\n'
         str_post += f'<u><b>{meteo["city"]["name"]}</b></u>\n'
-        if right_now:
-            str_post += create_rightnow_meteo(meteo)
-        else:
-            str_post += create_meteo(meteo)
+        str_post += create_meteo(meteo)
 
     return str_post
-
-
-def create_rightnow_meteo(one_hour):
-    return (f'Сейчас:  {one_hour["weather"]["main"]}</b>\n'
-            f'{one_hour["weather"]["description"]}')
 
 
 def create_meteo(a):
@@ -74,3 +66,4 @@ def create_table(header: list, body: List[List]):
     for row in body:
         table_meteo.add_row(row)
     return table_meteo
+

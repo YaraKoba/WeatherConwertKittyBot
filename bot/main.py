@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import re
-from suport_fl import mess, button, suport
+from suport_fl import mess, support
 from weather.get_meteo import create_text
 from Currency.currency import Currency, create_cur_text
 from dotenv import load_dotenv
@@ -15,7 +15,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.utils import executor
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 
 TOKEN = os.getenv('TOKEN')
@@ -40,13 +40,19 @@ class FormCurrency(StatesGroup):
     sum = State()
 
 
+class FormPolls(StatesGroup):
+    question = State()
+    options = State()
+    chat_id = State()
+
+
 # Выводим кнопки с выбором функций бота
 @dp.message_handler(commands='start')
 async def start_help(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
     mes = mess.header_mess(message)
     print(message)
-    change_btn = button.change_function_btn()
+    change_btn = support.change_function_btn()
     await message.answer(mes, parse_mode='html', reply_markup=change_btn)
 
 
@@ -64,6 +70,10 @@ async def process_callback_one_spot(callback_query: types.CallbackQuery):
         await bot.send_message(callback_query.from_user.id, 'Введите название валют через пробел\nнапример RUB USD')
     elif callback_query.data == 'Милота!':
         await send_random_animal_image(callback_query.from_user.id)
+    else:
+        await FormPolls.question.set()
+        await bot.send_message(callback_query.from_user.id,
+                               'Напишите тему опроса, например: "Насколько вы готовы к сезону?"')
 
 
 # Эта функция позволяет выйти из диалога командой /cancel
@@ -87,7 +97,7 @@ async def process_name(message: types.Message, state: FSMContext):
         data['city'] = message.text
 
     await FormWeather.next()
-    markup = button.day_btn()
+    markup = support.day_btn()
     await message.reply("На какую дату сформировать прогноз?\nУкажите дату кнопкой на клавиатуре", reply_markup=markup)
 
 
@@ -104,11 +114,11 @@ async def process_gender(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['date'] = message.text
         meteo = await weather.get_weather(data['city'])
-        date_f = [suport.re_amdate(message.text)]
+        date_f = [support.re_amdate(message.text)]
         text = create_text(date_f, meteo)
         markup = types.ReplyKeyboardRemove()
         await bot.send_message(message.chat.id, 'Ваш прогноз готов!', reply_markup=markup, parse_mode='html')
-        markup = button.change_function_btn()
+        markup = support.change_function_btn()
         await bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode='html')
     # Заканчиваем диалог
     await state.finish()
@@ -121,7 +131,8 @@ async def process_name(message: types.Message, state: FSMContext):
     answer = await currency.get_cur(cur_to, cur_from, 100)
     print(answer)
     if 'error' in answer:
-        return await message.reply("Обозначения валют введены не верно. Попробуйте еще раз или /cancel")
+        return await message.reply("Обозначения валют введены не верно или ошибка на сервере. "
+                                   "Попробуйте еще раз или /cancel")
 
     async with state.proxy() as data:
         data['cur'] = {'to': cur_to, 'from': cur_from, 'rate': answer["info"]["rate"]}
@@ -135,16 +146,57 @@ async def process_gender(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         amount = data['sum'] = message.text
         text = create_cur_text(data['cur'], amount)
-        markup = button.change_function_btn()
+        markup = support.change_function_btn()
         await bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode='html')
     # Заканчиваем диалог
     await state.finish()
 
 
+@dp.message_handler(state=FormPolls.question)
+async def process_question(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['question'] = message.text
+
+    await FormPolls.next()
+    await message.reply("Напишите опции для ответа через запятую, например:\n"
+                        "'готов, не готов, думаю'\nДля отмены введите /cancel")
+
+
+@dp.message_handler(state=FormPolls.options)
+async def check_options(message: types.Message, state: FSMContext):
+    options = message.text.replace(', ', ' | ')
+    if len(options.split(sep=' | ')) < 2:
+        await bot.send_message(message.from_user.id, 'Нужно написать минимум 2 опции через запитую')
+        return
+    async with state.proxy() as data:
+        data['options'] = options.split(sep=' | ')
+        await bot.send_message(message.from_user.id, f"Тема опроса {data['question']}:\n"
+                                                     f"Опции: {options}")
+        await FormPolls.next()
+        await message.reply("Введите ник группы куда отправить опрос"
+                            "Для отмены введите /cancel")
+
+
+@dp.message_handler(state=FormPolls.chat_id)
+async def process_chat_id(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['chat_id'] = message.text
+        print(data['chat_id'])
+        try:
+            await bot.send_poll(data['chat_id'], data['question'], data['options'])
+            await state.finish()
+        except Exception as err:
+            if err == 'Chat not found':
+                await message.reply("Чат не найден, повторите попытку или /cancel")
+
+
 async def send_random_animal_image(chat_id: int):
     image_url = await kitty.get_random_animals()
-    markup = button.change_function_btn()
-    await bot.send_photo(chat_id, image_url, reply_markup=markup)
+    markup = support.change_function_btn()
+    if image_url:
+        await bot.send_photo(chat_id, image_url, reply_markup=markup)
+    else:
+        await bot.send_message(chat_id, 'Что-то пошло не так, повторите попытку позже')
 
 
 def ran_server():

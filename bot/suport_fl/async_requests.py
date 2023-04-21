@@ -1,5 +1,4 @@
 import os
-import json
 from dotenv import load_dotenv
 import aiohttp
 import asyncio
@@ -42,5 +41,5 @@ async def main(host, param):
 
 if __name__ == '__main__':
     load_dotenv()
-    api_key = str(os.getenv("ak"))
+    api_key = str(os.getenv("ACCESS_KEY"))
     asyncio.run(main(host=KITTY_API_HOST, param={'client_id': api_key}))
