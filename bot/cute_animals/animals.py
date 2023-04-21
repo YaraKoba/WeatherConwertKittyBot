@@ -1,10 +1,7 @@
 import os
-import asyncio
-
 from suport_fl.setting import *
 from suport_fl.async_requests import AioRequests
 
-from dotenv import load_dotenv
 
 
 class Animals:

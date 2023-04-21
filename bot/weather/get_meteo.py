@@ -1,7 +1,6 @@
 from typing import List
 import prettytable as pt
 from suport_fl.support import cheng_format_utc as uts, amdate
-import datetime
 
 
 def oneday_meteo(day, j_info):
@@ -13,7 +12,6 @@ def oneday_meteo(day, j_info):
                      'list': []}
     for day_hour in j_info['list']:
         data_obj = uts(day_hour['dt'], timezone)
-        print(data_obj.strftime("%Y-%m-%d"), day)
         if data_obj.strftime("%Y-%m-%d") == day:
             one_day_meteo['list'].append(day_hour)
 
@@ -66,4 +64,3 @@ def create_table(header: list, body: List[List]):
     for row in body:
         table_meteo.add_row(row)
     return table_meteo
-

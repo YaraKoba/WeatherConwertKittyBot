@@ -15,7 +15,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.utils import executor
 
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 
 TOKEN = os.getenv('TOKEN')
@@ -126,8 +126,14 @@ async def process_gender(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=FormCurrency.cur)
 async def process_name(message: types.Message, state: FSMContext):
-    cur_from, cur_to = message.text.split()
-    await message.reply('Делаем запрос на сервер...')
+    user_text = message.text.split()
+    if len(user_text) == 2:
+        cur_from = user_text[0].upper()
+        cur_to = user_text[1].upper()
+    else:
+        await bot.send_message(message.from_user.id, 'Нужно указать 2 параметра из какой и в какую валюту хотите менять')
+        return
+    await bot.send_message(message.from_user.id, 'Делаем запрос на сервер...')
     answer = await currency.get_cur(cur_to, cur_from, 100)
     print(answer)
     if 'error' in answer:
@@ -138,11 +144,14 @@ async def process_name(message: types.Message, state: FSMContext):
         data['cur'] = {'to': cur_to, 'from': cur_from, 'rate': answer["info"]["rate"]}
 
     await FormCurrency.next()
-    await message.reply("Введите сумму")
+    await message.reply(f"Введите сумму {cur_from} чтобы перевести в {cur_to}")
 
 
 @dp.message_handler(state=FormCurrency.sum)
 async def process_gender(message: types.Message, state: FSMContext):
+    if not message.text.isdigit() or len(message.text) > 10:
+        await bot.send_message(message.chat.id, 'Вводить только цифры длиной не более 10 знаков')
+        return
     async with state.proxy() as data:
         amount = data['sum'] = message.text
         text = create_cur_text(data['cur'], amount)
@@ -164,29 +173,31 @@ async def process_question(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=FormPolls.options)
 async def check_options(message: types.Message, state: FSMContext):
-    options = message.text.replace(', ', ' | ')
-    if len(options.split(sep=' | ')) < 2:
+    options = message.text.split(sep=',')
+    if len(options) < 2:
         await bot.send_message(message.from_user.id, 'Нужно написать минимум 2 опции через запитую')
         return
     async with state.proxy() as data:
-        data['options'] = options.split(sep=' | ')
+        data['options'] = options
         await bot.send_message(message.from_user.id, f"Тема опроса {data['question']}:\n"
-                                                     f"Опции: {options}")
+                                                     f"Опции: {' | '.join(options)}")
         await FormPolls.next()
-        await message.reply("Введите ник группы куда отправить опрос"
-                            "Для отмены введите /cancel")
+        await bot.send_message(message.from_user.id, "Введите ник группы куда отправить опрос\n"
+                                                     "Для отмены введите /cancel")
 
 
 @dp.message_handler(state=FormPolls.chat_id)
 async def process_chat_id(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['chat_id'] = message.text
-        print(data['chat_id'])
         try:
             await bot.send_poll(data['chat_id'], data['question'], data['options'])
             await state.finish()
+            markup = support.change_function_btn()
+            await bot.send_message(message.from_user.id, f"Опрос успешно доставлен на id: {data['chat_id']}!", reply_markup=markup)
         except Exception as err:
-            if err == 'Chat not found':
+            print(err)
+            if str(err) == 'Chat not found':
                 await message.reply("Чат не найден, повторите попытку или /cancel")
 
 
