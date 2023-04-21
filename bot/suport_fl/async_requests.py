@@ -12,10 +12,8 @@ async def _get(**kwargs):
     param = kwargs.get('param')
     header = kwargs.get('header')
     address = host + path
-    print(address, param)
     async with aiohttp.ClientSession() as session:
         async with session.get(address, headers=header, params=param) as resp:
-            print(resp.text())
             return await resp.json()
 
 
@@ -36,19 +34,13 @@ class AioRequests:
 
 async def main(host, param):
     req = AioRequests(host, param)
-    total = await req.get_request(new_param={'to': 'USD',
-                                             'from': 'RUB',
-                                             'amount': 10}, path=CUR_API_PATH, header={'apikey': api_key})
-    with open('./meteo.json', 'w') as j_file:
-        json.dump(total, j_file, indent=6, ensure_ascii=True)
+    total = await req.get_request(new_param={'query': 'cute animals'}, path=KITTY_API_PATH, header={'Accept-Version': 'v1'})
+    # with open('./meteo.json', 'w') as j_file:
+    #     json.dump(total, j_file, indent=6, ensure_ascii=True)
     print(total)
 
 
 if __name__ == '__main__':
     load_dotenv()
-    api_key = str(os.getenv("API_CUR_KEY"))
-    asyncio.run(main(host=CUR_API_HOST, param={
-        'to': '',
-        'from': '',
-        'amount': '',
-    }))
+    api_key = str(os.getenv("ak"))
+    asyncio.run(main(host=KITTY_API_HOST, param={'client_id': api_key}))

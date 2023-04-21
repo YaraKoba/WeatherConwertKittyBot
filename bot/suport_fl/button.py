@@ -13,7 +13,7 @@ def day_btn():
 
 
 def change_function_btn():
-    name_functions = ['Погода', 'Валюты', 'Котики!', 'Опросы']
+    name_functions = ['Погода', 'Валюты', 'Милота!', 'Опросы']
     markup = types.InlineKeyboardMarkup(row_width=1)
     for function in name_functions:
         markup.add(types.InlineKeyboardButton(function, callback_data=function))

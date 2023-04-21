@@ -2,9 +2,10 @@
 import re
 from suport_fl import mess, button, suport
 from weather.get_meteo import create_text
+from Currency.currency import Currency, create_cur_text
 from dotenv import load_dotenv
 import os
-
+from cute_animals.animals import Animals
 import logging
 from weather.weather_main import WeatherClient
 from aiogram import Bot, Dispatcher, types
@@ -23,12 +24,15 @@ storage = MemoryStorage()
 dp = Dispatcher(bot=bot, storage=storage)
 
 weather = WeatherClient(bot)
+currency = Currency(bot)
+kitty = Animals()
 
 
 # Форма для прогноза погоды
 class FormWeather(StatesGroup):
     city = State()
     date = State()
+
 
 # Форма для конвектора валют
 class FormCurrency(StatesGroup):
@@ -46,18 +50,20 @@ async def start_help(message: types.Message):
     await message.answer(mes, parse_mode='html', reply_markup=change_btn)
 
 
-# Сюда приходит callback с выбронной функцией
-@dp.callback_query_handler(lambda x: x.data in ['Погода', 'Валюты', 'Котики!', 'Опросы'])
+# Сюда приходит callback с выбранной функцией
+@dp.callback_query_handler(lambda x: x.data in ['Погода', 'Валюты', 'Милота!', 'Опросы'])
 async def process_callback_one_spot(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, f"Вы выбрали {callback_query.data}.")
-    # В зависимости от выбранной функции зупускаем диалог
+    await bot.send_message(callback_query.from_user.id, f"Вы выбрали {callback_query.data}")
+    # В зависимости от выбранной функции запускаем диалог
     if callback_query.data == 'Погода':
         await FormWeather.city.set()
         await bot.send_message(callback_query.from_user.id, 'Введите название города')
     elif callback_query.data == 'Валюты':
         await FormCurrency.cur.set()
         await bot.send_message(callback_query.from_user.id, 'Введите название валют через пробел\nнапример RUB USD')
+    elif callback_query.data == 'Милота!':
+        await send_random_animal_image(callback_query.from_user.id)
 
 
 # Эта функция позволяет выйти из диалога командой /cancel
@@ -86,7 +92,8 @@ async def process_name(message: types.Message, state: FSMContext):
 
 
 # ПРОГНОЗ проверяем дату
-@dp.message_handler(lambda message: not re.search(r"[А-Я][а-я]\s\d{2}\s[а-я]+\b|Сейчас", message.text), state=FormWeather.date)
+@dp.message_handler(lambda message: not re.search(r"[А-Я][а-я]\s\d{2}\s[а-я]+\b|Сейчас", message.text),
+                    state=FormWeather.date)
 async def process_gender_invalid(message: types.Message):
     return await message.reply("Дата не верна. Укажите дату кнопкой на клавиатуре или /cancel")
 
@@ -96,10 +103,12 @@ async def process_gender_invalid(message: types.Message):
 async def process_gender(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['date'] = message.text
-        markup = button.change_function_btn()
         meteo = await weather.get_weather(data['city'])
         date_f = [suport.re_amdate(message.text)]
         text = create_text(date_f, meteo)
+        markup = types.ReplyKeyboardRemove()
+        await bot.send_message(message.chat.id, 'Ваш прогноз готов!', reply_markup=markup, parse_mode='html')
+        markup = button.change_function_btn()
         await bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode='html')
     # Заканчиваем диалог
     await state.finish()
@@ -107,93 +116,36 @@ async def process_gender(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=FormCurrency.cur)
 async def process_name(message: types.Message, state: FSMContext):
-    if not await weather.get_weather(message.text):
-        return await message.reply("Город не найден. Попробуйте еще раз или /cancel")
+    cur_from, cur_to = message.text.split()
+    await message.reply('Делаем запрос на сервер...')
+    answer = await currency.get_cur(cur_to, cur_from, 100)
+    print(answer)
+    if 'error' in answer:
+        return await message.reply("Обозначения валют введены не верно. Попробуйте еще раз или /cancel")
 
     async with state.proxy() as data:
-        data['cur'] = message.text
+        data['cur'] = {'to': cur_to, 'from': cur_from, 'rate': answer["info"]["rate"]}
 
-    await FormWeather.next()
-    markup = button.day_btn()
-    await message.reply("На какую дату сформировать прогноз?\nУкажите дату кнопкой на клавиатуре", reply_markup=markup)
-#
+    await FormCurrency.next()
+    await message.reply("Введите сумму")
 
 
-#
-#
-# @dp.message_handler(regexp='Погода')
-# async def weather(message: types.Message):
-#     await Form.city.set()
-#     await message.reply("Напиши название города")
-#
-#
-# @dp.message_handler(state=Form.city)
-# async def process_name(message: types.Message, state: FSMContext):
-#     async with state.proxy() as data:
-#         data['city'] = message.text
-#     await Form.next()
-#     await message.reply("Выбери дату")
-#
-# @dp.message_handler(state=Form.date)
-# async def process_name(message: types.Message, state: FSMContext):
-#     async with state.proxy() as data:
-#         data['date'] = message.text
-#     await Form.next()
-#     await message.reply("Выбери дату")
-#
-#
-#
-#
-#
+@dp.message_handler(state=FormCurrency.sum)
+async def process_gender(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        amount = data['sum'] = message.text
+        text = create_cur_text(data['cur'], amount)
+        markup = button.change_function_btn()
+        await bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode='html')
+    # Заканчиваем диалог
+    await state.finish()
 
 
-# @dip.message_handler(commands='help')
-# async def get_help(message: types.Message):
-#     print(f'{message.from_user.first_name} - command: {message.text}')
-#     mes = mess.help_mess()
-#     await message.answer(mes, parse_mode='html')
-#
-#
+async def send_random_animal_image(chat_id: int):
+    image_url = await kitty.get_random_animals()
+    markup = button.change_function_btn()
+    await bot.send_photo(chat_id, image_url, reply_markup=markup)
 
-#
-#
-# @dip.message_handler(regexp=r'Все дни!')
-# async def all_date_fly(message: types.Message):
-#     print(f'{message.from_user.first_name} - command: {message.text}')
-#     date_all = button.day_5()
-#     weather.get_weather()
-#     await message.answer(res, parse_mode='html')
-#
-#
-# @dip.message_handler(regexp=r"[А-Я][а-я]\s\d{2}\s[а-я]+\b")
-# async def one_day_fly(message: types.Message):
-#     print(f'{message.from_user.first_name} - command: {message.text}')
-#     try:
-#         date_f = [suport.re_amdate(message.text)]
-#         user_inf, spots = await manager.get_user_and_spots(message)
-#         res = await manager.create_meteo_message(city=user_inf['city'], chat_id=user_inf['user_id'], lst_days=date_f)
-#         await message.answer(res, parse_mode='html')
-#     except (IndexError, Exception):
-#         await show_days(message)
-#
-#
-# @dip.callback_query_handler(lambda c: c.data)
-# async def process_callback_handler(callback_query: types.CallbackQuery):
-#     user, spots = await manager.get_user_and_spots(callback_query)
-#     spot_dict = None
-#     for spot in spots:
-#         if callback_query.data == spot['name']:
-#             spot_dict = spot
-#
-#     if spot_dict is not None:
-#         res = mess.mess_get_spot(spot_dict)
-#         await bot.send_message(user['user_id'], text=res, parse_mode='html')
-#     else:
-#         city_inf = callback_query.data.split()
-#         update_inf = {'city': city_inf[0], 'city_name': city_inf[1]}
-#         await manager.update_user(callback_query, update_inf)
-#         await bot.send_message(user['user_id'], text=f"Текущее место изменено на: {city_inf[1]}")
-#
 
 def ran_server():
     executor.start_polling(dp)

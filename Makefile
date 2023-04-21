@@ -3,7 +3,7 @@ requirements:
 		pip install -r requirements.txt
 
 env:
-		echo "TOKEN=\nAPI_KEY=\nADMIN_LOGIN=\nADMIN_PASSWORD=" > .env
+		echo "TOKEN=\nAPI_KEY=\nAPI_CUR_KEY=" > .env
 		vim .env
 
 run_bot:

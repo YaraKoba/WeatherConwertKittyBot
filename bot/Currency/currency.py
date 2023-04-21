@@ -7,24 +7,22 @@ from suport_fl.async_requests import AioRequests
 from dotenv import load_dotenv
 
 
-class WeatherClient:
+class Currency:
     def __init__(self, bot):
         load_dotenv()
         self.bot = bot
-        api_key = str(os.getenv("API_CUR_KEY"))
-        self.req = AioRequests(host=CUR_API_HOST, param={
-            'to': '',
-            'from': '',
-            'amount': '',
-            'apikey': api_key,
-        })
-        self.cache_meteo = dict()
+        self.req = AioRequests(host=CUR_API_HOST, param={})
 
     async def get_cur(self, cur_to, cur_from, amount):
+        api_key = str(os.getenv("API_CUR_KEY"))
+        result = await self.req.get_request(path=CUR_API_PATH,
+                                            header={'apikey': api_key},
+                                            new_param={'to': cur_to,
+                                                       'from': cur_from,
+                                                       'amount': amount})
+        return result
 
-        print('NOT cache')
-        result = await self.req.get_request(path=OPEN_API_PATH, new_param={'to': cur_to,
-                                                                           'from': cur_from,
-                                                                           'amount': amount})
-        print(result['cod'])
-        return result if result['cod'] == '200' else False
+
+def create_cur_text(answer, amount):
+    return f'{amount} {answer["from"]} в {answer["to"]} по курсу {answer["rate"]}\n' \
+           f'<b>ОТВЕТ: {str(float(amount) * answer["rate"])[:-3]} {answer["to"]}</b>'
