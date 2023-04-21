@@ -25,12 +25,18 @@ dp = Dispatcher(bot=bot, storage=storage)
 weather = WeatherClient(bot)
 
 
-# создаём форму и указываем поля
+# Форма для прогноза погоды
 class FormWeather(StatesGroup):
     city = State()
     date = State()
 
+# Форма для конвектора валют
+class FormCurrency(StatesGroup):
+    cur = State()
+    sum = State()
 
+
+# Выводим кнопки с выбором функций бота
 @dp.message_handler(commands='start')
 async def start_help(message: types.Message):
     print(f'{message.from_user.first_name} - command: {message.text}')
@@ -40,15 +46,21 @@ async def start_help(message: types.Message):
     await message.answer(mes, parse_mode='html', reply_markup=change_btn)
 
 
-@dp.callback_query_handler(lambda x: x.data in ['Погода', 'Конвертировать валюты', 'Котики!', 'опросы'])
+# Сюда приходит callback с выбронной функцией
+@dp.callback_query_handler(lambda x: x.data in ['Погода', 'Валюты', 'Котики!', 'Опросы'])
 async def process_callback_one_spot(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, f"Вы выбрали {callback_query.data}.")
+    # В зависимости от выбранной функции зупускаем диалог
     if callback_query.data == 'Погода':
         await FormWeather.city.set()
         await bot.send_message(callback_query.from_user.id, 'Введите название города')
+    elif callback_query.data == 'Валюты':
+        await FormCurrency.cur.set()
+        await bot.send_message(callback_query.from_user.id, 'Введите название валют через пробел\nнапример RUB USD')
 
 
+# Эта функция позволяет выйти из диалога командой /cancel
 @dp.message_handler(state='*', commands='cancel')
 @dp.message_handler(Text(equals='отмена', ignore_case=True), state='*')
 async def cancel_handler(message: types.Message, state: FSMContext):
@@ -59,11 +71,9 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     await message.reply('Отмана')
 
 
+# ПРОГНОЗ проверяем и записываем город
 @dp.message_handler(state=FormWeather.city)
 async def process_name(message: types.Message, state: FSMContext):
-    print()
-    print(await weather.get_weather(message.text))
-    print()
     if not await weather.get_weather(message.text):
         return await message.reply("Город не найден. Попробуйте еще раз или /cancel")
 
@@ -75,25 +85,13 @@ async def process_name(message: types.Message, state: FSMContext):
     await message.reply("На какую дату сформировать прогноз?\nУкажите дату кнопкой на клавиатуре", reply_markup=markup)
 
 
-@dp.message_handler(lambda message: message.text in ['Сейчас'], state=FormWeather.date)
-async def process_gender_invalid(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        data['date'] = message.text
-        markup = button.change_function_btn()
-        meteo = await weather.get_weather_right_now(data['city'])
-        date_f = ['Now']
-        text = create_text(date_f, meteo, right_now=True)
-        await bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode='html')
-
-    await state.finish()
-    return await message.reply("Дата не верна. Укажите дату кнопкой на клавиатуре")
-
-
-@dp.message_handler(lambda message: not re.search(r"[А-Я][а-я]\s\d{2}\s[а-я]+\b", message.text), state=FormWeather.date)
+# ПРОГНОЗ проверяем дату
+@dp.message_handler(lambda message: not re.search(r"[А-Я][а-я]\s\d{2}\s[а-я]+\b|Сейчас", message.text), state=FormWeather.date)
 async def process_gender_invalid(message: types.Message):
-    return await message.reply("Дата не верна. Укажите дату кнопкой на клавиатуре")
+    return await message.reply("Дата не верна. Укажите дату кнопкой на клавиатуре или /cancel")
 
 
+# ПРОГНОЗ записываем дату, отправляем прогноз
 @dp.message_handler(state=FormWeather.date)
 async def process_gender(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -103,10 +101,21 @@ async def process_gender(message: types.Message, state: FSMContext):
         date_f = [suport.re_amdate(message.text)]
         text = create_text(date_f, meteo)
         await bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode='html')
-
+    # Заканчиваем диалог
     await state.finish()
 
 
+@dp.message_handler(state=FormCurrency.cur)
+async def process_name(message: types.Message, state: FSMContext):
+    if not await weather.get_weather(message.text):
+        return await message.reply("Город не найден. Попробуйте еще раз или /cancel")
+
+    async with state.proxy() as data:
+        data['cur'] = message.text
+
+    await FormWeather.next()
+    markup = button.day_btn()
+    await message.reply("На какую дату сформировать прогноз?\nУкажите дату кнопкой на клавиатуре", reply_markup=markup)
 #
 
 

@@ -27,7 +27,7 @@ class WeatherClient:
             result = self.cache_meteo[city]
         else:
             print('NOT cache')
-            meteo = await self.req.get_request({'q': city}, OPEN_API_PATH)
+            meteo = await self.req.get_request(new_param={'q': city}, path=OPEN_API_PATH)
             print(meteo['cod'])
             if meteo['cod'] == '200':
                 self.cache_meteo[city] = meteo
@@ -39,7 +39,7 @@ class WeatherClient:
         return result
 
     async def get_weather_right_now(self, city):
-        meteo = await self.req.get_request({'q': city}, OPEN_API_PATH_RIGHT_NOW)
+        meteo = await self.req.get_request(new_param={'q': city}, path=OPEN_API_PATH_RIGHT_NOW)
         if meteo['cod'] == '200':
             return meteo
         else:
