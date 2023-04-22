@@ -20,6 +20,12 @@ def change_function_btn():
     return markup
 
 
+def yes_no_btn(callback_data):
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    for ans in ['да', 'нет']:
+        markup.add(types.InlineKeyboardButton(ans, callback_data=callback_data))
+    return markup
+
 def amdate(dat):
     mon_dct = {'01': 'Января', '02': 'февраля', '03': 'марта', '04': 'апреля',
                '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',

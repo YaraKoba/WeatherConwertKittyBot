@@ -8,7 +8,7 @@ import os
 from cute_animals.animals import Animals
 import logging
 from weather.weather_main import WeatherClient
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, bot as b
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
@@ -63,6 +63,7 @@ async def process_callback_one_spot(callback_query: types.CallbackQuery):
     await bot.send_message(callback_query.from_user.id, f"Вы выбрали {callback_query.data}")
     # В зависимости от выбранной функции запускаем диалог
     if callback_query.data == 'Погода':
+        print(await bot.get_chat("-1001802156643"))
         await FormWeather.city.set()
         await bot.send_message(callback_query.from_user.id, 'Введите название города')
     elif callback_query.data == 'Валюты':
@@ -84,7 +85,8 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     if current_state is None:
         return
     await state.finish()
-    await message.reply('Отмана')
+    markup = support.change_function_btn()
+    await message.reply('Отмена. Теперь вы можете снова выбрать опцию', reply_markup=markup)
 
 
 # ПРОГНОЗ проверяем и записываем город
@@ -123,7 +125,7 @@ async def process_gender(message: types.Message, state: FSMContext):
     # Заканчиваем диалог
     await state.finish()
 
-
+# ВАЛЮТЫ принимаем обозначения валют и проверяем на валидность
 @dp.message_handler(state=FormCurrency.cur)
 async def process_name(message: types.Message, state: FSMContext):
     user_text = message.text.split()
@@ -146,7 +148,7 @@ async def process_name(message: types.Message, state: FSMContext):
     await FormCurrency.next()
     await message.reply(f"Введите сумму {cur_from} чтобы перевести в {cur_to}")
 
-
+# ВАЛЮТЫ принимаем сумму конверктации и проверяем на валидность, выводим ответ
 @dp.message_handler(state=FormCurrency.sum)
 async def process_gender(message: types.Message, state: FSMContext):
     if not message.text.isdigit() or len(message.text) > 10:
@@ -161,6 +163,7 @@ async def process_gender(message: types.Message, state: FSMContext):
     await state.finish()
 
 
+# ОПРОСЫ принимаем вопрос для опроса
 @dp.message_handler(state=FormPolls.question)
 async def process_question(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -170,7 +173,7 @@ async def process_question(message: types.Message, state: FSMContext):
     await message.reply("Напишите опции для ответа через запятую, например:\n"
                         "'готов, не готов, думаю'\nДля отмены введите /cancel")
 
-
+# ОПРОСЫ принимаем опции и проверяем их количество
 @dp.message_handler(state=FormPolls.options)
 async def check_options(message: types.Message, state: FSMContext):
     options = message.text.split(sep=',')
@@ -186,15 +189,16 @@ async def check_options(message: types.Message, state: FSMContext):
                                                      "Для отмены введите /cancel")
 
 
+# ОПРОСЫ принимаем ник группы и проверяем на валидность, отправляем опрос
 @dp.message_handler(state=FormPolls.chat_id)
 async def process_chat_id(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['chat_id'] = message.text
         try:
-            await bot.send_poll(data['chat_id'], data['question'], data['options'])
+
             await state.finish()
             markup = support.change_function_btn()
-            await bot.send_message(message.from_user.id, f"Опрос успешно доставлен на id: {data['chat_id']}!", reply_markup=markup)
+            await bot.send_message(message.from_user.id, f"Опрос успешно доставлен на id: {data['chat_id']}", reply_markup=markup)
         except Exception as err:
             print(err)
             if str(err) == 'Chat not found':
