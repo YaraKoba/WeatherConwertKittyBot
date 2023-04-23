@@ -38,7 +38,7 @@ def oneday_meteo(day, j_info):
 # Формируем информацию в таблицу prettytable
 def create_meteo(a):
     timezone = a['city']['timezone']
-    lst_header = ['Time', 't', 'Wind', 'Rain', 'Clouds']
+    lst_header = ['Time', 't', 'Wind', 'Rain']
     param = []
     for one_hour in a['list']:
         param.append(
@@ -47,7 +47,6 @@ def create_meteo(a):
                 int(one_hour['main']['temp']),
                 int(one_hour['wind']['speed']),
                 int(one_hour['pop'] * 100),
-                one_hour['clouds']['all'],
             ]
         )
     table_meteo = create_table(lst_header, param)

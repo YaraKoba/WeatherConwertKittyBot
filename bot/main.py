@@ -206,9 +206,13 @@ async def check_options(message: types.Message, state: FSMContext):
 @dp.message_handler(state=FormPolls.chat_id)
 async def process_chat_id(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['chat_id'] = message.text
+
+        # С помощью регулярных выражений находим из сообщения пользователя id чат группы
+        chat_id = re.findall(r'-?\d+', message.text)
+        data['chat_id'] = chat_id[0]
+
+        # Проверяем, существует ли чат
         try:
-            await state.finish()
             markup = support.change_function_btn()
             await bot.send_poll(data["chat_id"], data["question"], data["options"])
             await bot.send_message(message.from_user.id, f"Опрос успешно доставлен на id: {data['chat_id']}",
@@ -217,6 +221,9 @@ async def process_chat_id(message: types.Message, state: FSMContext):
             print(err)
             if str(err) == 'Chat not found':
                 await message.reply("Чат не найден, повторите попытку или /cancel")
+                return
+
+        await state.finish()
 
 
 # Узнаем id чата
