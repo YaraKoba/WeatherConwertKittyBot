@@ -198,11 +198,11 @@ async def check_options(message: types.Message, state: FSMContext):
         # Предварительный просмотр опроса
         await bot.send_poll(message.from_user.id, data["question"], data["options"])
         await FormPolls.next()
-        await bot.send_message(message.from_user.id, "Введите ник группы куда отправить опрос\n"
+        await bot.send_message(message.from_user.id, "Введите id группы куда отправить опрос\n"
                                                      "Для отмены введите /cancel")
 
 
-# ОПРОСЫ принимаем ник группы и проверяем на валидность, отправляем опрос
+# ОПРОСЫ принимаем id группы и проверяем на валидность, отправляем опрос
 @dp.message_handler(state=FormPolls.chat_id)
 async def process_chat_id(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
