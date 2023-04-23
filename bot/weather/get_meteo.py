@@ -1,23 +1,7 @@
-from typing import List
-import prettytable as pt
-from suport_fl.support import cheng_format_utc as uts, amdate
+from suport_fl.support import cheng_format_utc as uts, amdate, create_table
 
 
-def oneday_meteo(day, j_info):
-    timezone = j_info['city']['timezone']
-    one_day_meteo = {"city": {"timezone": timezone,
-                              "sunrise": j_info['city']['sunrise'],
-                              "sunset": j_info['city']['sunset'],
-                              "name": j_info['city']['name']},
-                     'list': []}
-    for day_hour in j_info['list']:
-        data_obj = uts(day_hour['dt'], timezone)
-        if data_obj.strftime("%Y-%m-%d") == day:
-            one_day_meteo['list'].append(day_hour)
-
-    return one_day_meteo
-
-
+# В этом файле мы формируем прогноз погоды исходя из выбранной даты.
 def create_text(lst_day: list, meteo_dict, right_now=None):
     str_post = ''
 
@@ -35,6 +19,23 @@ def create_text(lst_day: list, meteo_dict, right_now=None):
     return str_post
 
 
+# Фильтруем прогноз погоды по выбранной дате
+def oneday_meteo(day, j_info):
+    timezone = j_info['city']['timezone']
+    one_day_meteo = {"city": {"timezone": timezone,
+                              "sunrise": j_info['city']['sunrise'],
+                              "sunset": j_info['city']['sunset'],
+                              "name": j_info['city']['name']},
+                     'list': []}
+    for day_hour in j_info['list']:
+        data_obj = uts(day_hour['dt'], timezone)
+        if data_obj.strftime("%Y-%m-%d") == day:
+            one_day_meteo['list'].append(day_hour)
+
+    return one_day_meteo
+
+
+# Формируем информацию в таблицу prettytable
 def create_meteo(a):
     timezone = a['city']['timezone']
     lst_header = ['Time', 't', 'Wind', 'Rain', 'Clouds']
@@ -56,11 +57,3 @@ def create_meteo(a):
         f'Закат:  {uts(a["city"]["sunset"], timezone).strftime("%H:%M")}\n\n'
         f'<pre>{table_meteo}</pre>\n'
     )
-
-
-def create_table(header: list, body: List[List]):
-    table_meteo = pt.PrettyTable(header)
-    table_meteo.align = 'r'
-    for row in body:
-        table_meteo.add_row(row)
-    return table_meteo

@@ -3,7 +3,6 @@ from suport_fl.setting import *
 from suport_fl.async_requests import AioRequests
 
 
-
 class Animals:
     def __init__(self):
         api_key = str(os.getenv("ACCESS_KEY"))
@@ -13,7 +12,9 @@ class Animals:
         answer = await self.req.get_request(new_param={'query': 'cute animals'},
                                             path=KITTY_API_PATH,
                                             header={'Accept-Version': 'v1'})
-        if 'errors' in answer:
+
+        # Проверяем успех запроса
+        if 'errors' in answer or 'Error' in answer:
             print(answer)
             return False
         return answer['urls']['small']

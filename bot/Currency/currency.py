@@ -2,7 +2,7 @@ import os
 
 from suport_fl.setting import *
 from suport_fl.async_requests import AioRequests
-
+from suport_fl.support import create_table
 from dotenv import load_dotenv
 
 
@@ -23,5 +23,9 @@ class Currency:
 
 
 def create_cur_text(answer, amount):
-    return f'{amount} {answer["from"]} в {answer["to"]} по курсу {format(answer["rate"], ".3f")}\n' \
-           f'<b>ОТВЕТ: {format(float(amount) * answer["rate"], ".2f")} {answer["to"]}</b>'
+    header = ['from', 'to', 'rate']
+    row = [[answer["from"], answer["to"], format(answer["rate"], ".3f")],
+           [amount, format(float(amount) * answer["rate"], ".2f"), format(answer["rate"], ".3f")]]
+    table = create_table(header, row)
+    return f'Все готово!\n\n' \
+           f'<pre>{table}</pre>'

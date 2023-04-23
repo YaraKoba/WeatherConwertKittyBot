@@ -1,17 +1,19 @@
 from aiogram import types
 from datetime import date, timedelta, datetime, timezone
+from typing import List
+import prettytable as pt
 
 
-def day_btn():
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    for day in range(5):
-        btn = types.KeyboardButton(amdate(str(get_day(day))))
-        markup.add(btn)
-    btn = types.KeyboardButton(f'Сейчас')
-    markup.add(btn)
-    return markup
+# Функция для создания таблиц prettytable
+def create_table(header: list, body: List[List]):
+    table_meteo = pt.PrettyTable(header)
+    table_meteo.align = 'r'
+    for row in body:
+        table_meteo.add_row(row)
+    return table_meteo
 
 
+# Возвращает кнопки с функциями бота
 def change_function_btn():
     name_functions = ['Погода', 'Валюты', 'Милота!', 'Опросы']
     markup = types.InlineKeyboardMarkup(row_width=1)
@@ -20,12 +22,17 @@ def change_function_btn():
     return markup
 
 
-def yes_no_btn(callback_data):
-    markup = types.InlineKeyboardMarkup(row_width=2)
-    for ans in ['да', 'нет']:
-        markup.add(types.InlineKeyboardButton(ans, callback_data=callback_data))
+# Возвращает текуще даты на 5 дней вперед
+def day_btn():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    for day in range(5):
+        # Добавляем кнопки и переводим дату удобный формат
+        btn = types.KeyboardButton(amdate(str(get_day(day))))
+        markup.add(btn)
     return markup
 
+
+# Возвращает дату в формате "ПН 01 Января"
 def amdate(dat):
     mon_dct = {'01': 'Января', '02': 'февраля', '03': 'марта', '04': 'апреля',
                '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
@@ -39,6 +46,7 @@ def amdate(dat):
     return f'{week} {day} {mon}'
 
 
+# Меняет формат даты из формата "ПН 01 Января" в "2023-01-01"
 def re_amdate(dat: str):
     mon_dct = {'01': 'Января', '02': 'февраля', '03': 'марта', '04': 'апреля',
                '05': 'майя', '06': 'июня', '07': 'июля', '08': 'августа',
@@ -59,6 +67,7 @@ def get_day(numb: int):
     return date.today() + delta
 
 
+# Возвращает объект datetime, переводит из формата utc с учетом time_zone
 def cheng_format_utc(time_utc, time_zone):
     offset = timedelta(seconds=time_zone)
     dt_object = datetime.fromtimestamp(time_utc, timezone(offset))
